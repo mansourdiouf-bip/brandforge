@@ -1,18 +1,12 @@
 {
-  "version": 2,
-  "functions": {
-    "api/claude.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/claude",
-      "dest": "/api/claude.js"
+      "source": "/api/claude",
+      "destination": "/api/claude.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
