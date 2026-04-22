@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrandForge Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F4F3F0;
+    --bg2: #FFFFFF;
+    --bg3: #EEECE8;
+    --bg4: #E5E3DE;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #111110;
+    --text2: #4A4A48;
+    --text3: #9B9B99;
+    --accent: #111110;
+    --accent2: #2D6BE4;
+    --success-bg: #EDFAF3;
+    --success-border: #6EE7B7;
+    --success-text: #065F46;
+    --info-bg: #EFF6FF;
+    --info-border: #93C5FD;
+    --info-text: #1D4ED8;
+    --danger-bg: #FEF2F2;
+    --danger-border: #FCA5A5;
+    --danger-text: #991B1B;
+    --warning-bg: #FFFBEB;
+    --warning-border: #FCD34D;
+    --warning-text: #92400E;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { width: 240px; min-width: 240px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: var(--shadow-sm); }
+
+  .logo-area { padding: 22px 18px 18px; border-bottom: 1px solid var(--border); }
+  .logo-mark { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--text); border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); }
+  .logo-icon svg { width: 18px; height: 18px; }
+  .logo-text { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.4px; color: var(--text); }
+  .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 1px; font-weight: 500; }
+
+  .nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.9px; text-transform: uppercase; padding: 10px 10px 5px; margin-top: 6px; }
+
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 400; color: var(--text2); transition: all 0.15s; user-select: none; position: relative; }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--text); color: #fff; font-weight: 500; }
+
+  .nav-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--bg3); flex-shrink: 0; font-size: 14px; transition: background 0.15s; }
+  .nav-item.active .nav-icon { background: rgba(255,255,255,0.15); }
+  .nav-item:hover:not(.active) .nav-icon { background: var(--bg4); }
+
+  .badge { margin-left: auto; font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--info-bg); color: var(--info-text); font-weight: 600; border: 1px solid var(--info-border); }
+  .nav-item.active .badge { background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.2); }
+
+  .sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border); }
+  .version-tag { font-size: 11px; color: var(--text3); background: var(--bg3); padding: 4px 10px; border-radius: 20px; display: inline-block; font-weight: 500; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
+
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow-sm); }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .topbar-title { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .topbar-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+  .content { padding: 28px; flex: 1; }
+
+  /* ── BUTTONS ── */
+  .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: var(--bg2); color: var(--text); font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { background: var(--bg3); border-color: var(--border2); }
+  .btn-primary { background: var(--text); color: #fff; border-color: var(--text); box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { background: #2a2a28; }
+  .btn-blue { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .btn-blue:hover { background: #2558C8; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+  .btn-danger { color: var(--danger-text); border-color: var(--danger-border); background: var(--bg2); }
+  .btn-danger:hover { background: var(--danger-bg); }
+
+  /* ── PANELS ── */
+  .panel { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+  .panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg2); }
+  .panel-title { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+  .panel-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .panel-body { padding: 20px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+
+  /* ── STEPS BAR ── */
+  .steps-bar { display: flex; margin-bottom: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 5px; box-shadow: var(--shadow-sm); }
+  .step-item { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 6px; border-radius: var(--radius-lg); font-size: 12px; font-weight: 500; color: var(--text3); transition: all 0.2s; cursor: default; }
+  .step-item.active { background: var(--text); color: #fff; box-shadow: var(--shadow-sm); }
+  .step-item.done { color: var(--success-text); }
+  .step-num { width: 20px; height: 20px; border-radius: 50%; background: var(--bg3); font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text3); flex-shrink: 0; transition: all 0.2s; }
+  .step-item.active .step-num { background: rgba(255,255,255,0.2); color: #fff; }
+  .step-item.done .step-num { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); font-size: 12px; }
+  .step-content { display: none; }
+  .step-content.active { display: block; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone { border: 2px dashed var(--border2); border-radius: var(--radius-lg); padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg3); position: relative; }
+  .upload-zone:hover { border-color: var(--accent2); background: #EFF6FF; }
+  .upload-zone.has-file { border-style: solid; border-color: var(--success-border); background: var(--success-bg); }
+  .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+  .upload-hint { font-size: 11px; color: var(--text3); line-height: 1.5; }
+  .preview-img { max-width: 100px; max-height: 70px; object-fit: contain; margin: 0 auto 8px; display: block; border-radius: 6px; box-shadow: var(--shadow-sm); }
+  .format-tags { display: flex; justify-content: center; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+  .format-tag { font-size: 10px; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border2); color: var(--text3); font-weight: 500; background: var(--bg2); }
+  .format-tag.pdf { border-color: var(--danger-border); color: var(--danger-text); background: var(--danger-bg); }
+
+  /* ── TABS ── */
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; background: var(--bg); }
+  .tab { padding: 11px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab.active { color: var(--text); border-bottom-color: var(--text); }
+  .tab:hover:not(.active) { color: var(--text2); }
+  .section-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; background: var(--bg2); }
+  .section-tab { padding: 11px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .section-tab.active { color: var(--text); border-bottom-color: var(--text); }
+  .detail-section { display: none; padding: 24px; }
+  .detail-section.active { display: block; }
+
+  /* ── FORMS ── */
+  .field { margin-bottom: 16px; }
+  .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.1px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 9px 12px; font-size: 13px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg2); color: var(--text); font-family: inherit; transition: all 0.15s; }
+  .field textarea { min-height: 65px; resize: vertical; line-height: 1.6; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(45,107,228,0.1); }
+  .tone-grid { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+  .tone-tag { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text2); transition: all 0.15s; background: var(--bg2); }
+  .tone-tag:hover { border-color: var(--text); color: var(--text); background: var(--bg3); }
+  .tone-tag.selected { background: var(--text); color: #fff; border-color: var(--text); }
+
+  /* ── COLORS ── */
+  .color-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .color-item { text-align: center; }
+  .color-swatch { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .color-hex { font-size: 10px; color: var(--text3); font-family: monospace; margin-top: 4px; font-weight: 500; }
+  .color-name { font-size: 10px; color: var(--text3); max-width: 56px; line-height: 1.3; margin-top: 2px; }
+
+  /* ── TYPO ── */
+  .typo-pair { display: flex; gap: 12px; }
+  .typo-card { flex: 1; background: var(--bg3); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); }
+  .typo-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+  .typo-name { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .typo-style { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ── ANALYZING ── */
+  .analyzing { display: flex; flex-direction: column; align-items: center; padding: 56px 20px; gap: 16px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--bg3); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-bar { height: 4px; background: var(--bg3); border-radius: 4px; overflow: hidden; width: 220px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--text) 0%, var(--accent2) 100%); border-radius: 4px; transition: width 0.4s ease; }
+
+  /* ── CHARTE ── */
+  .result-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .charte-block { background: var(--bg3); border-radius: var(--radius); padding: 16px 18px; font-size: 13px; line-height: 1.9; border: 1px solid var(--border); }
+
+  /* ── LIVRABLES ── */
+  .livrable-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .livrable-row:last-child { border-bottom: none; }
+  .livrable-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; border: 1px solid var(--border); }
+  .livrable-info { flex: 1; }
+  .livrable-name { font-size: 13px; font-weight: 600; }
+  .livrable-fmt { font-size: 11px; color: var(--text3); margin-top: 3px; font-weight: 500; }
+  .livrable-status { font-size: 12px; font-weight: 500; }
+
+  /* ── SOCIAL ── */
+  .social-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .social-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; transition: all 0.15s; background: var(--bg2); cursor: pointer; }
+  .social-card:hover { background: var(--bg3); border-color: var(--border2); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .social-preview { border-radius: 8px; height: 48px; margin-bottom: 10px; }
+  .social-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .social-dims { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: monospace; font-weight: 500; }
+
+  /* ── PROJECT CARDS ── */
+  .projet-card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; background: var(--bg2); box-shadow: var(--shadow-sm); }
+  .projet-card:hover { background: var(--bg3); border-color: var(--border2); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .projet-thumb { width: 44px; height: 44px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; color: #fff; box-shadow: var(--shadow-sm); }
+  .projet-info { flex: 1; min-width: 0; }
+  .projet-name { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+  .projet-meta { font-size: 12px; color: var(--text3); margin-top: 3px; font-weight: 400; }
+  .dots-row { margin-top: 6px; display: flex; gap: 4px; align-items: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,0.08); }
+
+  /* ── DETAIL ── */
+  .detail-header { display: flex; align-items: center; gap: 18px; padding: 24px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  .detail-thumb { width: 56px; height: 56px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #fff; flex-shrink: 0; box-shadow: var(--shadow); }
+
+  /* ── EXPORT CARDS ── */
+  .export-card { border: 1px solid var(--success-border); border-radius: var(--radius); padding: 16px; text-align: center; background: var(--success-bg); transition: all 0.15s; cursor: pointer; }
+  .export-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .export-icon { font-size: 24px; margin-bottom: 8px; }
+  .export-name { font-size: 12px; font-weight: 600; color: var(--success-text); }
+  .export-fmt { font-size: 10px; color: var(--text3); margin-top: 3px; font-weight: 500; font-family: monospace; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 56px 20px; color: var(--text3); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 14px; opacity: 0.6; }
+  .empty-state p { font-size: 13px; line-height: 1.8; color: var(--text3); }
+
+  /* ── SECTIONS ── */
+  .section-view { display: none; }
+  .section-view.active { display: block; }
+
+  /* ── NOTIFICATION ── */
+  .notif { position: fixed; bottom: 28px; right: 28px; background: var(--text); color: #fff; padding: 12px 20px; border-radius: var(--radius); font-size: 13px; font-weight: 500; z-index: 1000; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; box-shadow: var(--shadow); }
+  .notif.show { opacity: 1; transform: translateY(0); }
+
+  /* ── PDF BADGE ── */
+  .pdf-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--danger-bg); color: var(--danger-text); font-size: 11px; padding: 4px 10px; border-radius: 20px; margin-top: 6px; border: 1px solid var(--danger-border); font-weight: 600; }
+
+  /* ── EDIT ROW ── */
+  .edit-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .edit-row label { font-size: 12px; color: var(--text2); width: 90px; flex-shrink: 0; font-weight: 600; }
+  .edit-row input { flex: 1; padding: 8px 12px; font-size: 13px; border-radius: var(--radius); border: 1px solid var(--border2); background: var(--bg2); color: var(--text); font-family: inherit; }
+  .edit-row input:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(45,107,228,0.1); }
+
+  /* ── COLOR EDIT ── */
+  .color-edit-wrap { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+  .color-edit-item { display: flex; align-items: center; gap: 8px; background: var(--bg3); padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border); }
+  .color-edit-swatch { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); position: relative; overflow: hidden; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .color-edit-swatch input[type=color] { position: absolute; inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); opacity: 0; cursor: pointer; }
+  .color-edit-hex { font-size: 12px; font-family: monospace; color: var(--text2); font-weight: 600; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* ── INFO BOX ── */
+  .info-box { background: var(--info-bg); border: 1px solid var(--info-border); border-radius: var(--radius); padding: 12px 14px; font-size: 12px; color: var(--info-text); line-height: 1.6; display: flex; gap: 8px; align-items: flex-start; }
+
+  canvas#pdf-canvas { max-width: 110px; max-height: 75px; border-radius: 6px; display: none; margin: 0 auto 10px; box-shadow: var(--shadow-sm); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-mark">
+        <div class="logo-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3L13 13M5.5 9.5H10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div><div class="logo-text">BrandForge</div><div class="logo-sub">Studio</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" onclick="showSection('nouveau')"><div class="nav-icon">✦</div>Nouveau projet</div>
+      <div class="nav-item" onclick="showSection('projets')"><div class="nav-icon">📂</div>Mes projets<span class="badge" id="proj-count">0</span></div>
+      <div class="nav-item" onclick="showSection('gabarits')"><div class="nav-icon">🗂</div>Gabarits<span class="badge" id="gab-count">0</span></div>
+      <div class="nav-item" onclick="showSection('mediatheque')"><div class="nav-icon">🖼</div>Médiathèque</div>
+    </div>
+    <div class="sidebar-footer">
+      <span class="version-tag">V1 — Beta</span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ===== NOUVEAU PROJET ===== -->
+    <div class="section-view active" id="sec-nouveau">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-icon">✦</div>
+          <div><div class="topbar-title">Nouveau projet</div><div class="topbar-sub">Identité visuelle complète en quelques minutes</div></div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn" onclick="resetForm()">Réinitialiser</button>
+          <button class="btn btn-primary" id="btn-action" onclick="nextStep()">Continuer →</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="steps-bar">
+          <div class="step-item active" id="snav-1"><div class="step-num">1</div>Direction artistique</div>
+          <div class="step-item" id="snav-2"><div class="step-num">2</div>Analyse IA</div>
+          <div class="step-item" id="snav-3"><div class="step-num">3</div>Infos client</div>
+          <div class="step-item" id="snav-4"><div class="step-num">4</div>Génération</div>
+          <div class="step-item" id="snav-5"><div class="step-num">5</div>Export</div>
+        </div>
+
+        <!-- STEP 1 : DIRECTION ARTISTIQUE -->
+        <div class="step-content active" id="step1">
+          <div class="grid2">
+            <div class="panel">
+              <div class="panel-header"><div><div class="panel-title">Direction artistique</div><div class="panel-sub">Moodboard visuel + brief créatif pour guider l'IA</div></div></div>
+              <div class="panel-body">
+                <div class="tab-bar" style="margin:-20px -20px 16px;padding:0 20px;">
+                  <div class="tab active" onclick="switchTab(this,'logo')">Logo / Charte</div>
+                  <div class="tab" onclick="switchTab(this,'pptx')">PPTX référence</div>
+                  <div class="tab" onclick="switchTab(this,'inspo')">Moodboard</div>
+                </div>
+                <div id="tab-logo">
+                  <div class="upload-zone" id="upload-zone-logo">
+                    <input type="file" id="up-logo" accept="image/*,.svg,.pdf" onchange="handleUpload(this,'logo')" style="display:none;">
+                    <div id="logo-ph" onclick="document.getElementById('up-logo').click()" style="cursor:pointer;">
+                      <div style="font-size:28px;margin-bottom:8px;">⬆</div>
+                      <div class="upload-title">Logo ou charte graphique</div>
+                      <div class="upload-hint">Cliquez ici pour sélectionner votre fichier</div>
+                      <div class="format-tags"><span class="format-tag">PNG</span><span class="format-tag">JPG</span><span class="format-tag">SVG</span><span class="format-tag pdf">PDF</span></div>
+                      <div style="margin-top:12px;">
+                        <button type="button" onclick="event.stopPropagation();document.getElementById('up-logo').click();" class="btn btn-primary btn-sm">Choisir un fichier</button>
+                      </div>
+                    </div>
+                    <div id="logo-prev" style="display:none;cursor:pointer;" onclick="document.getElementById('up-logo').click()">
+                      <canvas id="pdf-canvas"></canvas>
+                      <img id="logo-img" class="preview-img" src="" alt="" style="display:none;">
+                      <div class="upload-title" id="logo-fname"></div>
+                      <div id="logo-badge"></div>
+                      <div class="upload-hint" style="margin-top:4px;">Cliquer pour changer</div>
+                    </div>
+                  </div>
+                </div>
+                <div id="tab-pptx" style="display:none;">
+                  <div class="upload-zone">
+                    <input type="file" id="up-pptx" accept=".pptx,.ppt" onchange="handleUpload(this,'pptx')" style="display:none;">
+                    <div onclick="document.getElementById('up-pptx').click()" style="cursor:pointer;">
+                      <div style="font-size:28px;margin-bottom:8px;">📊</div>
+                      <div class="upload-title">Présentation de référence</div>
+                      <div class="upload-hint">L'IA s'inspire du style de cette présentation</div>
+                      <div class="format-tags"><span class="format-tag">.pptx</span><span class="format-tag">.ppt</span></div>
+                      <div style="margin-top:12px;">
+                        <button type="button" class="btn btn-primary btn-sm">Choisir un fichier</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="tab-inspo" style="display:none;">
+                  <div class="upload-zone">
+                    <input type="file" id="up-inspo" accept="image/*,.pdf" onchange="handleUpload(this,'inspo')" style="display:none;">
+                    <div onclick="document.getElementById('up-inspo').click()" style="cursor:pointer;">
+                      <div style="font-size:28px;margin-bottom:8px;">🖼</div>
+                      <div class="upload-title">Image moodboard</div>
+                      <div class="upload-hint">Pinterest, Behance, screenshot — toute inspiration visuelle</div>
+                      <div class="format-tags"><span class="format-tag">PNG</span><span class="format-tag">JPG</span><span class="format-tag pdf">PDF</span></div>
+                      <div style="margin-top:12px;">
+                        <button type="button" class="btn btn-primary btn-sm">Choisir un fichier</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top:16px;border-top:0.5px solid var(--border);padding-top:16px;">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                    <div style="font-size:12px;font-weight:600;color:var(--text);">Brief créatif</div>
+                    <span style="font-size:10px;color:var(--text3);background:var(--bg3);padding:2px 7px;border-radius:10px;">Optionnel — l'IA analyse seule si vide</span>
+                  </div>
+                  <textarea id="user-prompt" placeholder="Ajoute du contexte si besoin... Ex: secteur pharmaceutique, ton professionnel, couleurs vertes" style="width:100%;padding:10px 12px;font-size:12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;min-height:70px;resize:vertical;line-height:1.6;"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><div><div class="panel-title">Gabarits enregistrés</div><div class="panel-sub">Réutiliser un modèle existant</div></div></div>
+              <div class="panel-body" id="gab-sidebar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2 : ANALYSE -->
+        <div class="step-content" id="step2">
+          <div class="panel">
+            <div class="panel-header"><div><div class="panel-title">Analyse IA</div><div class="panel-sub">Extraction automatique des éléments visuels</div></div></div>
+            <div id="analyse-body">
+              <div class="analyzing">
+                <div class="spinner"></div>
+                <div style="font-size:14px;color:var(--text2);" id="analyse-msg">Analyse en cours...</div>
+                <div style="font-size:12px;color:var(--text3);">Couleurs · Typographies · Univers de marque</div>
+                <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3 : INFOS CLIENT -->
+        <div class="step-content" id="step3">
+          <div class="grid2">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Informations client</div></div>
+              <div class="panel-body">
+                <div class="field"><label>Nom du client / marque</label><input type="text" id="f-nom" placeholder="Ex : Atelier Lumière"></div>
+                <div class="field"><label>Secteur d'activité</label>
+                  <select id="f-secteur"><option value="">Sélectionner...</option><option>Mode & Beauté</option><option>Restauration & Food</option><option>Tech & Digital</option><option>Santé & Bien-être</option><option>Immobilier & Construction</option><option>Finance & Conseil</option><option>Éducation & Formation</option><option>Artisanat & Créatif</option><option>Sport & Fitness</option><option>Autre</option></select>
+                </div>
+                <div class="field"><label>Slogan (optionnel)</label><input type="text" id="f-slogan" placeholder="Ex : L'élégance au quotidien"></div>
+                <div class="field"><label>Langue des livrables</label><select id="f-langue"><option>Français</option><option>Anglais</option><option>Bilingue</option></select></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Direction créative</div></div>
+              <div class="panel-body">
+                <div class="field"><label>Ton de la marque</label>
+                  <div class="tone-grid">
+                    <div class="tone-tag" onclick="toggleTone(this)">Minimaliste</div><div class="tone-tag" onclick="toggleTone(this)">Luxe</div><div class="tone-tag" onclick="toggleTone(this)">Dynamique</div><div class="tone-tag" onclick="toggleTone(this)">Sérieux</div><div class="tone-tag" onclick="toggleTone(this)">Créatif</div><div class="tone-tag" onclick="toggleTone(this)">Moderne</div><div class="tone-tag" onclick="toggleTone(this)">Chaleureux</div><div class="tone-tag" onclick="toggleTone(this)">Tech</div><div class="tone-tag" onclick="toggleTone(this)">Nature</div><div class="tone-tag" onclick="toggleTone(this)">Bold</div>
+                  </div>
+                </div>
+                <div class="field" style="margin-top:12px;"><label>Couleurs à éviter</label><input type="text" id="f-eviter" placeholder="Ex : rouge, orange vif"></div>
+                <div class="field"><label>Instructions spécifiques</label><textarea id="f-notes" placeholder="Toute indication particulière..."></textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4 : GÉNÉRATION -->
+        <div class="step-content" id="step4">
+          <div class="panel">
+            <div class="panel-header"><div><div class="panel-title">Génération en cours</div><div class="panel-sub">Création de tous les livrables de l'identité visuelle</div></div></div>
+            <div class="panel-body"><div id="gen-items"></div></div>
+          </div>
+        </div>
+
+        <!-- STEP 5 : EXPORT -->
+        <div class="step-content" id="step5">
+          <div class="panel">
+            <div class="panel-header">
+              <div><div class="panel-title">Pack prêt !</div><div class="panel-sub">Tous les livrables sont disponibles</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" onclick="showSection('projets')">Voir mes projets →</button>
+                <button class="btn btn-primary" onclick="fakeDownload()">⬇ Télécharger ZIP</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="grid3" id="export-grid" style="margin-bottom:20px;"></div>
+              <div class="result-label">Mini charte générée</div>
+              <div class="charte-block" id="charte-preview"></div>
+              <div style="margin-top:16px;text-align:center;"><button class="btn" onclick="resetForm()">+ Nouveau projet</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MES PROJETS ===== -->
+    <div class="section-view" id="sec-projets">
+      <div class="topbar">
+        <div><div class="topbar-title">Mes projets</div><div class="topbar-sub" id="proj-sub">0 projet</div></div>
+        <button class="btn btn-primary" onclick="showSection('nouveau')">+ Nouveau projet</button>
+      </div>
+      <div class="content" id="projets-content"></div>
+    </div>
+
+    <!-- ===== DETAIL PROJET ===== -->
+    <div class="section-view" id="sec-detail">
+      <div class="topbar">
+        <div><div class="topbar-title" id="dtitle">Projet</div><div class="topbar-sub" id="dsub"></div></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="showSection('projets')">← Retour</button>
+          <button class="btn btn-primary" onclick="fakeDownload()">⬇ Télécharger ZIP</button>
+        </div>
+      </div>
+      <div id="detail-body"></div>
+    </div>
+
+    <!-- ===== GABARITS ===== -->
+    <div class="section-view" id="sec-gabarits">
+      <div class="topbar">
+        <div><div class="topbar-title">Gabarits</div><div class="topbar-sub">Modèles réutilisables</div></div>
+        <button class="btn btn-primary" onclick="showSection('nouveau')">+ Nouveau gabarit</button>
+      </div>
+      <div class="content" id="gabarits-content"></div>
+    </div>
+
+    <!-- ===== MÉDIATHÈQUE ===== -->
+    <div class="section-view" id="sec-mediatheque">
+      <div class="topbar">
+        <div><div class="topbar-title">Médiathèque</div><div class="topbar-sub">Images et assets par client</div></div>
+        <button class="btn btn-primary">+ Ajouter</button>
+      </div>
+      <div class="content"><div class="empty-state"><div class="icon">🖼</div><p>Médiathèque disponible en V2.<br>Stockage d'images par client,<br>réutilisables sur tous vos projets.</p></div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+const ANTHROPIC_KEY = 'VOTRE_CLE_API_ICI';
+if (typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+async function callClaude(body) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+  return resp.json();
+}
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let currentStep = 1;
+let uploadedFile = null, uploadedType = null;
+let analysisResult = null, extractedImageData = null;
+let projects = [], gabarits = [];
+
+// ─── STORAGE ───────────────────────────────────────────────────────────────
+function lsGet(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } }
+function lsSet(k,v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+
+function loadAll() {
+  const p = lsGet('bf_projects'); if (p) projects = p;
+  const g = lsGet('bf_gabarits'); if (g) gabarits = g;
+  updateBadges(); renderProjects(); renderGabarits(); renderGabSidebar();
+}
+
+function updateBadges() {
+  document.getElementById('proj-count').textContent = projects.length;
+  document.getElementById('gab-count').textContent = gabarits.length;
+  const s = document.getElementById('proj-sub');
+  if (s) s.textContent = projects.length + ' projet' + (projects.length > 1 ? 's' : '');
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────────────────────
+function showSection(name) {
+  document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  const map = { nouveau:0, projets:1, detail:1, gabarits:2, mediatheque:3 };
+  if (map[name] !== undefined) document.querySelectorAll('.nav-item')[map[name]].classList.add('active');
+  if (name === 'projets') renderProjects();
+  if (name === 'gabarits') renderGabarits();
+}
+
+function switchTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active');
+  ['logo','pptx','inspo'].forEach(t => { const e = document.getElementById('tab-'+t); if(e) e.style.display = t===tab?'block':'none'; });
+}
+
+// ─── UPLOAD ────────────────────────────────────────────────────────────────
+let pdfPages = []; // stocke plusieurs pages du PDF
+
+async function handleUpload(input, type) {
+  const file = input.files[0]; if (!file) return;
+  uploadedFile = file; uploadedType = type;
+  extractedImageData = null; pdfPages = [];
+  const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+  if (isPDF) {
+    notify('PDF détecté — extraction des pages en cours...');
+    try {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const totalPages = pdf.numPages;
+      
+      // Extraire les pages clés : 1, 2, et pages du milieu (où sont souvent couleurs/typos)
+      const pagesToExtract = new Set([1, 2, Math.ceil(totalPages/2), totalPages-1, totalPages].filter(p => p >= 1 && p <= totalPages));
+      
+      notify(`PDF de ${totalPages} pages — analyse des pages clés...`);
+      
+      for (const pageNum of pagesToExtract) {
+        const page = await pdf.getPage(pageNum);
+        const vp = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        pdfPages.push(canvas.toDataURL('image/png').split(',')[1]);
+      }
+      
+      // Utiliser la première page pour l'aperçu
+      extractedImageData = pdfPages[0];
+      const canvas = document.getElementById('pdf-canvas');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+      };
+      img.src = 'data:image/png;base64,' + pdfPages[0];
+      canvas.style.display = 'block';
+      document.getElementById('logo-img').style.display = 'none';
+      document.getElementById('logo-fname').textContent = file.name;
+      document.getElementById('logo-badge').innerHTML = `<div class="pdf-badge">📄 PDF · ${pagesToExtract.size} pages analysées</div>`;
+      document.getElementById('logo-ph').style.display = 'none';
+      document.getElementById('logo-prev').style.display = 'block';
+      document.getElementById('upload-zone-logo').classList.add('has-file');
+      notify(`✓ ${pagesToExtract.size} pages extraites — prêt pour l'analyse !`);
+    } catch(e) { 
+      console.error('PDF error:', e);
+      notify('Erreur lecture PDF — essayez un autre format'); 
+    }
+  } else if (file.type.startsWith('image/')) {
+    const r = new FileReader();
+    r.onload = ev => {
+      extractedImageData = ev.target.result.split(',')[1];
+      document.getElementById('logo-img').src = ev.target.result;
+      document.getElementById('logo-img').style.display = 'block';
+      document.getElementById('pdf-canvas').style.display = 'none';
+      document.getElementById('logo-fname').textContent = file.name;
+      document.getElementById('logo-badge').innerHTML = '';
+      document.getElementById('logo-ph').style.display = 'none';
+      document.getElementById('logo-prev').style.display = 'block';
+      document.getElementById('upload-zone-logo').classList.add('has-file');
+      notify('✓ Image chargée — prêt pour l\'analyse !');
+    };
+    r.readAsDataURL(file);
+  } else {
+    notify('Fichier chargé : ' + file.name);
+    document.getElementById('logo-ph').style.display = 'none';
+    document.getElementById('logo-prev').style.display = 'block';
+    document.getElementById('logo-fname').textContent = file.name;
+    document.getElementById('logo-badge').innerHTML = '';
+    document.getElementById('upload-zone-logo').classList.add('has-file');
+  }
+}
+
+function toggleTone(el) { el.classList.toggle('selected'); }
+function getSelectedTones() { return [...document.querySelectorAll('.tone-tag.selected')].map(t => t.textContent); }
+
+// ─── STEPS ─────────────────────────────────────────────────────────────────
+async function nextStep() {
+  if (currentStep === 1) {
+    if (!uploadedFile) { notify('Veuillez d\'abord uploader une source'); return; }
+    goToStep(2); document.getElementById('btn-action').disabled = true;
+    await runAnalysis();
+    document.getElementById('btn-action').disabled = false;
+    document.getElementById('btn-action').textContent = 'Continuer →';
+  } else if (currentStep === 2) {
+    goToStep(3); document.getElementById('btn-action').textContent = 'Générer →';
+  } else if (currentStep === 3) {
+    const nom = document.getElementById('f-nom').value.trim();
+    if (!nom) { notify('Veuillez entrer le nom du client'); return; }
+    goToStep(4); document.getElementById('btn-action').disabled = true; document.getElementById('btn-action').textContent = 'Génération...';
+    await runGeneration();
+    document.getElementById('btn-action').disabled = false;
+    document.getElementById('btn-action').textContent = 'Nouveau projet';
+    document.getElementById('btn-action').onclick = resetForm;
+  }
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach((s,i) => { s.classList.remove('active','done'); if(i+1<n) s.classList.add('done'); });
+  document.getElementById('snav-'+n).classList.add('active');
+  currentStep = n;
+}
+
+// ─── ANALYSE ───────────────────────────────────────────────────────────────
+async function runAnalysis() {
+  const prog = document.getElementById('prog');
+  const msgEl = document.getElementById('analyse-msg');
+  let p = 0; const iv = setInterval(() => { p = Math.min(p + Math.random()*10, 85); prog.style.width = p+'%'; }, 400);
+  const isPDF = uploadedFile && (uploadedFile.type==='application/pdf'||uploadedFile.name.toLowerCase().endsWith('.pdf'));
+  if (msgEl) msgEl.textContent = isPDF ? `Analyse de ${pdfPages.length} pages en cours...` : 'Analyse de l\'image en cours...';
+
+  const userContext = document.getElementById('user-prompt')?.value?.trim() || '';
+
+  const prompt = `Tu es un expert en identité visuelle et branding avec 20 ans d'expérience.
+Analyse attentivement ${isPDF && pdfPages.length > 1 ? 'ces pages de document (charte graphique, PDF de marque)' : 'cette image (logo, charte ou inspiration visuelle)'}.
+${userContext ? `\nCONTEXTE FOURNI : "${userContext}"\n` : ''}
+
+INSTRUCTIONS STRICTES :
+- Extrais les couleurs HEX EXACTES visibles dans le document — pas de couleurs inventées
+- Pour un PDF de charte : cherche la page palette/couleurs et lis les codes HEX affichés
+- Identifie les polices nommées dans le document, sinon suggère des polices cohérentes
+- Analyse le style général, le secteur et l'ambiance de la marque
+- Si plusieurs images sont fournies, analyse-les toutes ensemble pour une vision complète
+
+Retourne UNIQUEMENT ce JSON valide, sans markdown, sans backticks :
+{"couleurs":[{"hex":"#XXXXXX","nom":"nom","usage":"principale","description":"rôle"},{"hex":"#XXXXXX","nom":"nom","usage":"secondaire","description":"rôle"},{"hex":"#XXXXXX","nom":"nom","usage":"accent","description":"rôle"}],"typographies":{"principale":{"nom":"Nom Police","style":"description","usage":"titres","visible_dans_doc":true},"secondaire":{"nom":"Nom Police","style":"description","usage":"corps","visible_dans_doc":false}},"univers":{"style":"description du style visuel","ton":"adj1, adj2, adj3","secteur_probable":"secteur","mots_cles":["mot1","mot2","mot3"],"ambiance":"description ambiance marque"}}`;
+
+  try {
+    let content = [];
+
+    // Ajouter toutes les pages PDF ou l'image unique
+    if (isPDF && pdfPages.length > 0) {
+      pdfPages.forEach((pageData, i) => {
+        content.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: pageData } });
+        content.push({ type: 'text', text: `Page ${i+1} du document ci-dessus.` });
+      });
+    } else if (extractedImageData) {
+      content.push({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: extractedImageData } });
+    }
+
+    content.push({ type: 'text', text: prompt });
+
+    const msgs = content.length > 1
+      ? [{ role: 'user', content }]
+      : [{ role: 'user', content: prompt + '\n\n(Aucune image — génère une analyse exemple créative)' }];
+
+    const d = await callClaude({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: msgs });
+    if (d.error) throw new Error(d.error.message);
+    const raw = d.content[0].text.replace(/```json|```/g, '').trim();
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    analysisResult = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+  } catch(e) {
+    console.error('Analyse error:', e);
+    analysisResult = {
+      couleurs:[
+        {hex:'#1B2A4A',nom:'Bleu nuit',usage:'principale',description:'Couleur dominante'},
+        {hex:'#F2EDE4',nom:'Beige chaud',usage:'secondaire',description:'Arrière-plans'},
+        {hex:'#C9973A',nom:'Or ambré',usage:'accent',description:'Éléments d\'accent'}
+      ],
+      typographies:{
+        principale:{nom:'Playfair Display',style:'Serif élégant',usage:'Titres',visible_dans_doc:false},
+        secondaire:{nom:'Source Sans Pro',style:'Sans-serif moderne',usage:'Corps',visible_dans_doc:false}
+      },
+      univers:{
+        style:'Élégant et professionnel',
+        ton:'Luxueux, Fiable, Moderne',
+        secteur_probable:'Finance & Conseil',
+        mots_cles:['élégance','confiance','expertise'],
+        ambiance:'Marque haut de gamme'
+      }
+    };
+    notify('⚠️ Analyse hors-ligne — vérifiez votre clé API');
+  }
+  clearInterval(iv); prog.style.width = '100%';
+  setTimeout(renderAnalysis, 400);
+}
+
+function renderAnalysis() {
+  const r = analysisResult;
+  let h = '<div style="padding:20px;">';
+
+  h += '<div style="margin-bottom:20px;"><div class="result-label">Palette de couleurs extraite</div><div style="display:flex;gap:14px;flex-wrap:wrap;">';
+  r.couleurs.forEach(c => {
+    h += `<div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 14px;flex:1;min-width:160px;">
+      <div style="width:42px;height:42px;border-radius:8px;background:${c.hex};border:0.5px solid var(--border);flex-shrink:0;"></div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${c.nom}</div>
+        <div style="font-size:11px;font-family:monospace;color:var(--text2);margin-top:1px;">${c.hex}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">${c.description||c.usage}</div>
+      </div>
+    </div>`;
+  });
+  h += '</div></div>';
+
+  h += '<div style="margin-bottom:20px;"><div class="result-label">Typographies identifiées</div><div style="display:flex;gap:10px;">';
+  const tp = r.typographies.principale, ts = r.typographies.secondaire;
+  h += `<div style="flex:1;background:var(--bg3);border-radius:8px;padding:14px;border-left:3px solid #1a1a1a;">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Titres ${tp.visible_dans_doc?'<span style="color:#16a34a;font-size:9px;">● Détectée</span>':'<span style="color:#d97706;font-size:9px;">● Suggérée</span>'}</div>
+    <div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px;">${tp.nom}</div>
+    <div style="font-size:11px;color:var(--text2);">${tp.style}</div>
+  </div>`;
+  h += `<div style="flex:1;background:var(--bg3);border-radius:8px;padding:14px;border-left:3px solid #888;">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Corps de texte ${ts.visible_dans_doc?'<span style="color:#16a34a;font-size:9px;">● Détectée</span>':'<span style="color:#d97706;font-size:9px;">● Suggérée</span>'}</div>
+    <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:4px;">${ts.nom}</div>
+    <div style="font-size:11px;color:var(--text2);">${ts.style}</div>
+  </div>`;
+  h += '</div></div>';
+
+  h += `<div style="margin-bottom:20px;"><div class="result-label">Univers de marque détecté</div>
+    <div style="background:var(--bg3);border-radius:8px;padding:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Style visuel</div><div style="font-size:13px;color:var(--text);font-weight:500;">${r.univers.style}</div></div>
+        <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Secteur probable</div><div style="font-size:13px;color:var(--text);font-weight:500;">${r.univers.secteur_probable}</div></div>
+        <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Ton de la marque</div><div style="font-size:13px;color:var(--text);font-weight:500;">${r.univers.ton}</div></div>
+        <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Ambiance</div><div style="font-size:13px;color:var(--text);font-weight:500;">${r.univers.ambiance||'—'}</div></div>
+      </div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Mots-clés</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">${(r.univers.mots_cles||[]).map(m=>`<span style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);">${m}</span>`).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+
+  h += '<div style="display:flex;gap:10px;align-items:center;">';
+  h += '<button class="btn btn-primary" onclick="nextStep()">Continuer → Infos client</button>';
+  h += '<span style="font-size:12px;color:var(--text3);">Tu peux modifier ces infos à l\'étape suivante</span>';
+  h += '</div></div>';
+
+  document.getElementById('analyse-body').innerHTML = h;
+}
+
+// ─── GÉNÉRATION ────────────────────────────────────────────────────────────
+async function runGeneration() {
+  const nom = document.getElementById('f-nom').value.trim();
+  const secteur = document.getElementById('f-secteur').value;
+  const slogan = document.getElementById('f-slogan').value.trim();
+  const tones = getSelectedTones();
+  const langue = document.getElementById('f-langue').value;
+  const notes = document.getElementById('f-notes').value.trim();
+  const livrables = [
+    {id:'charte',icon:'🎨',nom:'Mini charte graphique',fmt:'PDF + JSON'},
+    {id:'pptx',icon:'📊',nom:'Présentation PPTX',fmt:'PPTX'},
+    {id:'flyer',icon:'🗒',nom:'Flyers A4 + A5',fmt:'PDF + SVG'},
+    {id:'signature',icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},
+    {id:'entete',icon:'📄',nom:'En-tête Word',fmt:'DOCX + PDF'},
+    {id:'social',icon:'📱',nom:'Kit réseaux sociaux',fmt:'PNG × 12 formats'},
+  ];
+  document.getElementById('gen-items').innerHTML = livrables.map(l =>
+    `<div class="livrable-row"><div class="livrable-icon">${l.icon}</div><div class="livrable-info"><div class="livrable-name">${l.nom}</div><div class="livrable-fmt">${l.fmt}</div></div><div id="st-${l.id}" style="font-size:12px;color:var(--text3);">En attente...</div></div>`
+  ).join('');
+
+  for (let l of livrables) {
+    document.getElementById('st-'+l.id).textContent = '⏳ Génération...';
+    document.getElementById('st-'+l.id).style.color = 'var(--info-text)';
+    await new Promise(r => setTimeout(r, 600 + Math.random()*500));
+    document.getElementById('st-'+l.id).textContent = '✓ Prêt';
+    document.getElementById('st-'+l.id).style.color = 'var(--success-text)';
+  }
+
+  const proj = {
+    id: Date.now(), nom, secteur: secteur||'Non précisé', slogan, langue, tones, notes,
+    date: new Date().toLocaleDateString('fr-FR'),
+    couleurs: analysisResult ? analysisResult.couleurs : [],
+    typographies: analysisResult ? analysisResult.typographies : {},
+    univers: analysisResult ? analysisResult.univers : {},
+    livrables: livrables.map(l => ({...l, status:'ready'}))
+  };
+  projects.unshift(proj);
+  lsSet('bf_projects', projects);
+
+  if (uploadedType === 'pptx' || uploadedType === 'logo') {
+    gabarits.unshift({ id: Date.now(), nom: nom+' — gabarit', type: uploadedType, date: new Date().toLocaleDateString('fr-FR'), couleurs: proj.couleurs });
+    lsSet('bf_gabarits', gabarits);
+  }
+  updateBadges(); renderGabSidebar();
+  await new Promise(r => setTimeout(r, 300));
+  goToStep(5); renderExport(nom);
+  notify('🎉 Pack généré et projet sauvegardé !');
+}
+
+function renderExport(nom) {
+  const items = [{icon:'🎨',nom:'Mini charte',fmt:'PDF + JSON'},{icon:'📊',nom:'Présentation',fmt:'PPTX'},{icon:'🗒',nom:'Flyers',fmt:'PDF + SVG'},{icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},{icon:'📄',nom:'En-tête Word',fmt:'DOCX'},{icon:'📱',nom:'Kit social',fmt:'12 formats PNG'}];
+  document.getElementById('export-grid').innerHTML = items.map(it =>
+    `<div class="export-card" onclick="this.style.transform='scale(0.97)'"><div class="export-icon">${it.icon}</div><div class="export-name">${it.nom}</div><div class="export-fmt">${it.fmt}</div></div>`
+  ).join('');
+  const r = analysisResult;
+  const c0 = r?.couleurs[0]?.hex||'#1a1a1a';
+  const c1 = r?.couleurs[1]?.hex||'#f5f5f5';
+  const c2 = r?.couleurs[2]?.hex||'#888';
+  document.getElementById('charte-preview').innerHTML = buildCharteHTML(nom, r, c0, c1, c2);
+}
+
+function buildCharteHTML(nom, r, c0, c1, c2) {
+  if (!r) return '<p>Aucune donnée disponible</p>';
+  return `
+    <div style="background:${c1};border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+      <div style="background:${c0};padding:24px 28px;">
+        <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;">${nom}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:1px;">Identité visuelle · ${new Date().getFullYear()}</div>
+      </div>
+      <div style="padding:24px 28px;">
+
+        <div style="margin-bottom:24px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Palette de couleurs</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${(r.couleurs||[]).map(c=>`
+              <div style="flex:1;min-width:100px;">
+                <div style="height:56px;border-radius:10px;background:${c.hex};border:1px solid rgba(0,0,0,0.08);margin-bottom:8px;"></div>
+                <div style="font-size:12px;font-weight:600;color:var(--text);">${c.nom}</div>
+                <div style="font-size:11px;font-family:monospace;color:var(--text3);margin-top:2px;">${c.hex}</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:2px;text-transform:capitalize;">${c.usage}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin-bottom:24px;"></div>
+
+        <div style="margin-bottom:24px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Typographies</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:var(--bg2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">TITRES</div>
+              <div style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;">${r.typographies?.principale?.nom||'—'}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px;">${r.typographies?.principale?.style||''}</div>
+              <div style="margin-top:10px;font-size:24px;font-weight:700;color:${c0};">Aa Bb Cc</div>
+            </div>
+            <div style="background:var(--bg2);border-radius:10px;padding:16px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">CORPS</div>
+              <div style="font-size:16px;font-weight:600;color:var(--text);">${r.typographies?.secondaire?.nom||'—'}</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px;">${r.typographies?.secondaire?.style||''}</div>
+              <div style="margin-top:10px;font-size:13px;color:var(--text2);line-height:1.6;">Le texte courant est rédigé dans cette police pour assurer la lisibilité.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin-bottom:24px;"></div>
+
+        <div style="margin-bottom:24px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Univers de marque</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:var(--bg2);border-radius:10px;padding:14px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">Style</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);">${r.univers?.style||'—'}</div>
+            </div>
+            <div style="background:var(--bg2);border-radius:10px;padding:14px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">Ton</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);">${r.univers?.ton||'—'}</div>
+            </div>
+            <div style="background:var(--bg2);border-radius:10px;padding:14px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">Secteur</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);">${r.univers?.secteur_probable||'—'}</div>
+            </div>
+            <div style="background:var(--bg2);border-radius:10px;padding:14px;border:1px solid var(--border);">
+              <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">Ambiance</div>
+              <div style="font-size:13px;font-weight:500;color:var(--text);">${r.univers?.ambiance||'—'}</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">
+            ${(r.univers?.mots_cles||[]).map(m=>`<span style="background:${c0};color:#fff;font-size:11px;padding:5px 12px;border-radius:20px;font-weight:500;">${m}</span>`).join('')}
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin-bottom:24px;"></div>
+
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Exemples d'application</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div style="background:${c0};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;">Bouton principal</div>
+            <div style="background:transparent;color:${c0};padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;border:2px solid ${c0};">Bouton secondaire</div>
+            <div style="background:${c2};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;">Accent</div>
+          </div>
+          <div style="margin-top:12px;background:${c0};border-radius:10px;padding:18px 20px;">
+            <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:6px;">${nom}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);">${r.univers?.ambiance||'Identité visuelle de marque'}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+}
+
+// ─── PROJETS ───────────────────────────────────────────────────────────────
+function renderProjects() {
+  const c = document.getElementById('projets-content'); updateBadges();
+  if (!projects.length) { c.innerHTML = '<div class="empty-state"><div class="icon">📂</div><p>Aucun projet pour le moment.<br>Créez votre premier projet pour<br>le voir apparaître ici.</p></div>'; return; }
+  c.innerHTML = projects.map((p,i) => {
+    const c0 = p.couleurs&&p.couleurs[0] ? p.couleurs[0].hex||p.couleurs[0] : '#1a1a1a';
+    const dots = (p.couleurs||[]).map(c=>`<span class="dot" style="background:${c.hex||c}"></span>`).join('');
+    return `<div class="projet-card" onclick="openProject(${i})">
+      <div class="projet-thumb" style="background:${c0};">${p.nom.charAt(0).toUpperCase()}</div>
+      <div class="projet-info"><div class="projet-name">${p.nom}</div><div class="projet-meta">${p.secteur} · ${p.date}</div><div class="dots-row">${dots}</div></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:12px;color:var(--text3);">Voir →</span><button class="btn btn-sm btn-danger" onclick="deleteProject(${i},event)">Supprimer</button></div>
+    </div>`;
+  }).join('');
+}
+
+function openProject(i) {
+  const p = projects[i];
+  document.getElementById('dtitle').textContent = p.nom;
+  document.getElementById('dsub').textContent = p.secteur + ' · ' + p.date;
+  const c0 = p.couleurs&&p.couleurs[0] ? p.couleurs[0].hex||p.couleurs[0] : '#1a1a1a';
+  const couleurs = p.couleurs||[], typo = p.typographies||{}, univers = p.univers||{};
+  const livrables = p.livrables||[{icon:'🎨',nom:'Mini charte graphique',fmt:'PDF + JSON'},{icon:'📊',nom:'Présentation PPTX',fmt:'PPTX'},{icon:'🗒',nom:'Flyers A4 + A5',fmt:'PDF + SVG'},{icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},{icon:'📄',nom:'En-tête Word',fmt:'DOCX + PDF'},{icon:'📱',nom:'Kit réseaux sociaux',fmt:'PNG × 12 formats'}];
+  const socialFormats = [{icon:'📸',nom:'Instagram Post',dims:'1080×1080'},{icon:'📸',nom:'Instagram Story',dims:'1080×1920'},{icon:'📘',nom:'Facebook Post',dims:'1200×630'},{icon:'📘',nom:'Facebook Cover',dims:'820×312'},{icon:'💼',nom:'LinkedIn Post',dims:'1200×627'},{icon:'💼',nom:'LinkedIn Bannière',dims:'1584×396'},{icon:'🐦',nom:'Twitter/X',dims:'1600×900'},{icon:'▶️',nom:'YouTube Thumb',dims:'1280×720'},{icon:'▶️',nom:'YouTube Bannière',dims:'2560×1440'},{icon:'📌',nom:'Pinterest',dims:'1000×1500'}];
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-header">
+      <div class="detail-thumb" style="background:${c0};">${p.nom.charAt(0).toUpperCase()}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;">${p.nom}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px;">${p.secteur} · ${p.date}${p.slogan?' · "'+p.slogan+'"':''}</div>
+        <div class="dots-row" style="margin-top:6px;">${couleurs.map(c=>`<span class="dot" style="background:${c.hex||c}"></span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="section-tabs">
+      <div class="section-tab active" onclick="switchDetail(this,'charte')">Charte</div>
+      <div class="section-tab" onclick="switchDetail(this,'livrables')">Livrables</div>
+      <div class="section-tab" onclick="switchDetail(this,'social')">Réseaux sociaux</div>
+      <div class="section-tab" onclick="switchDetail(this,'modifier')">Modifier</div>
+    </div>
+    <div class="detail-section active" id="ds-charte">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="result-label" style="margin-bottom:0;">Mini charte graphique</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="notify('Export PDF en préparation...')">⬇ PDF</button>
+          <button class="btn btn-sm btn-primary" onclick="notify('Export JSON en préparation...')">⬇ JSON</button>
+        </div>
+      </div>
+      ${buildCharteHTML(p.nom, {couleurs, typographies:typo, univers}, c0, couleurs[1]?.hex||'#f5f5f5', couleurs[2]?.hex||'#888')}
+    </div>
+    <div class="detail-section" id="ds-livrables">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="result-label" style="margin-bottom:0;">Livrables générés</div>
+        <button class="btn btn-sm btn-primary" onclick="fakeDownload()">⬇ Tout télécharger</button>
+      </div>
+      ${livrables.map(l=>`
+        <div class="livrable-row">
+          <div class="livrable-icon-wrap">${l.icon||'📄'}</div>
+          <div class="livrable-info">
+            <div class="livrable-name">${l.nom}</div>
+            <div class="livrable-fmt">${l.fmt}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm" onclick="notify('Aperçu de ${l.nom} en préparation...')">Aperçu</button>
+            <button class="btn btn-sm btn-primary" onclick="notify('Téléchargement de ${l.nom}...')">⬇ Télécharger</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="detail-section" id="ds-social">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="result-label" style="margin-bottom:0;">Kit réseaux sociaux — ${socialFormats.length} formats</div>
+        <button class="btn btn-sm btn-primary" onclick="fakeDownload()">⬇ Kit complet</button>
+      </div>
+      <div class="social-grid">${socialFormats.map(s=>`
+        <div class="social-card">
+          <div class="social-preview" style="background:${c0};display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;opacity:0.5;">${s.icon}</span>
+          </div>
+          <div class="social-name">${s.nom}</div>
+          <div class="social-dims">${s.dims}</div>
+          <button class="btn btn-sm" style="width:100%;margin-top:8px;" onclick="notify('Téléchargement ${s.nom}...')">⬇</button>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="detail-section" id="ds-modifier">
+      <div class="result-label" style="margin-bottom:16px;">Modifier le projet</div>
+      <div class="edit-row"><label>Nom</label><input type="text" id="edit-nom" value="${p.nom}"></div>
+      <div class="edit-row"><label>Slogan</label><input type="text" id="edit-slogan" value="${p.slogan||''}" placeholder="—"></div>
+      <div style="margin-bottom:16px;"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500;">Couleurs</div>
+        <div class="color-edit-wrap">${couleurs.map((c,ci)=>`<div class="color-edit-item"><div class="color-edit-swatch" style="background:${c.hex||c};"><input type="color" value="${c.hex||c}" oninput="updateColor(this,${i},${ci})"></div><div class="color-edit-hex" id="hex-${i}-${ci}">${c.hex||c}</div></div>`).join('')}</div>
+      </div>
+      <button class="btn btn-primary" onclick="saveEdit(${i})">Enregistrer</button>
+    </div>`;
+  showSection('detail');
+}
+
+function switchDetail(el, name) {
+  document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active')); el.classList.add('active');
+  document.querySelectorAll('.detail-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('ds-'+name).classList.add('active');
+}
+
+function updateColor(input, pi, ci) {
+  const hex = input.value;
+  input.parentElement.style.background = hex;
+  const el = document.getElementById(`hex-${pi}-${ci}`); if (el) el.textContent = hex;
+  if (projects[pi]?.couleurs[ci]) projects[pi].couleurs[ci].hex = hex;
+}
+
+function saveEdit(i) {
+  projects[i].nom = document.getElementById('edit-nom').value;
+  projects[i].slogan = document.getElementById('edit-slogan').value;
+  lsSet('bf_projects', projects);
+  document.getElementById('dtitle').textContent = projects[i].nom;
+  notify('✓ Modifications enregistrées');
+}
+
+function deleteProject(i, e) {
+  e.stopPropagation(); projects.splice(i,1); lsSet('bf_projects', projects);
+  updateBadges(); renderProjects(); notify('Projet supprimé');
+}
+
+// ─── GABARITS ──────────────────────────────────────────────────────────────
+function renderGabarits() {
+  const c = document.getElementById('gabarits-content');
+  if (!gabarits.length) { c.innerHTML = '<div class="empty-state"><div class="icon">🗂</div><p>Vos gabarits apparaîtront ici.<br>Uploadez un PPTX ou logo pour<br>créer votre premier gabarit.</p></div>'; return; }
+  c.innerHTML = gabarits.map((g,i) => {
+    const c0 = g.couleurs&&g.couleurs[0] ? g.couleurs[0].hex||g.couleurs[0] : '#1a1a1a';
+    return `<div class="projet-card"><div class="projet-thumb" style="background:${c0};">G</div><div class="projet-info"><div class="projet-name">${g.nom}</div><div class="projet-meta">${g.type==='pptx'?'PPTX':'Logo'} · ${g.date}</div></div><button class="btn btn-sm btn-danger" onclick="deleteGabarit(${i},event)">Supprimer</button></div>`;
+  }).join('');
+}
+
+function renderGabSidebar() {
+  const c = document.getElementById('gab-sidebar');
+  if (!gabarits.length) { c.innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="icon" style="font-size:24px;">📁</div><p>Aucun gabarit enregistré.</p></div>'; return; }
+  c.innerHTML = gabarits.slice(0,3).map(g => {
+    const c0 = g.couleurs&&g.couleurs[0] ? g.couleurs[0].hex||g.couleurs[0] : '#1a1a1a';
+    return `<div style="border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div style="width:30px;height:30px;border-radius:6px;background:${c0};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">G</div><div><div style="font-size:12px;font-weight:600;">${g.nom}</div><div style="font-size:11px;color:var(--text3);">${g.date}</div></div></div>`;
+  }).join('');
+}
+
+function deleteGabarit(i, e) {
+  e.stopPropagation(); gabarits.splice(i,1); lsSet('bf_gabarits', gabarits);
+  updateBadges(); renderGabarits(); renderGabSidebar(); notify('Gabarit supprimé');
+}
+
+// ─── UTILS ─────────────────────────────────────────────────────────────────
+function fakeDownload() { notify('⬇ Préparation du ZIP...'); setTimeout(()=>notify('✓ ZIP téléchargé !'),1500); }
+
+function resetForm() {
+  uploadedFile=null; uploadedType=null; analysisResult=null; extractedImageData=null;
+  ['f-nom','f-slogan','f-eviter','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const fs=document.getElementById('f-secteur'); if(fs) fs.value='';
+  document.querySelectorAll('.tone-tag').forEach(t=>t.classList.remove('selected'));
+  document.getElementById('logo-ph').style.display='block';
+  document.getElementById('logo-prev').style.display='none';
+  document.getElementById('upload-zone-logo').classList.remove('has-file');
+  document.getElementById('pdf-canvas').style.display='none';
+  document.getElementById('logo-img').style.display='none';
+  document.getElementById('btn-action').textContent='Continuer →';
+  document.getElementById('btn-action').onclick=nextStep;
+  document.getElementById('btn-action').disabled=false;
+  document.getElementById('analyse-body').innerHTML=`<div class="analyzing"><div class="spinner"></div><div style="font-size:14px;color:var(--text2);" id="analyse-msg">Analyse en cours...</div><div style="font-size:12px;color:var(--text3);">Couleurs · Typographies · Univers de marque</div><div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div></div>`;
+  goToStep(1); showSection('nouveau');
+}
+
+function notify(msg) {
+  const n=document.getElementById('notif'); n.textContent=msg; n.classList.add('show');
+  clearTimeout(n._t); n._t=setTimeout(()=>n.classList.remove('show'),2800);
+}
+
+loadAll();
+</script>
+</body>
+</html>
