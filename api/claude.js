@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'Clé API non configurée sur Vercel' });
+    return res.status(500).json({ error: 'Cle API non configuree sur Vercel' });
   }
 
   try {
@@ -26,7 +26,6 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(req.body)
     });
-
     const data = await response.json();
     return res.status(response.status).json(data);
   } catch (error) {
