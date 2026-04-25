@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrandForge Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Sans:wght@500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F3F0;--bg2:#FFF;--bg3:#EEECE8;--bg4:#E5E3DE;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#111110;--text2:#4A4A48;--text3:#9B9B99;
+  --accent:#2D6BE4;
+  --ok-bg:#EDFAF3;--ok-br:#6EE7B7;--ok-tx:#065F46;
+  --info-bg:#EFF6FF;--info-br:#93C5FD;--info-tx:#1D4ED8;
+  --err-bg:#FEF2F2;--err-br:#FCA5A5;--err-tx:#991B1B;
+  --r:10px;--rl:14px;--rxl:18px;
+  --sh:0 1px 3px rgba(0,0,0,0.06);--shm:0 4px 12px rgba(0,0,0,0.08);
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:240px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;box-shadow:var(--sh)}
+.logo-area{padding:22px 18px 18px;border-bottom:1px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:#111;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px}
+.logo-text{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.4px}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.nav{padding:14px 10px;flex:1}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.9px;text-transform:uppercase;padding:10px 10px 5px}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;user-select:none}
+.ni:hover{background:var(--bg3);color:var(--text)}
+.ni.active{background:var(--text);color:#fff;font-weight:500}
+.ni-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:var(--bg3);flex-shrink:0;font-size:14px}
+.ni.active .ni-icon{background:rgba(255,255,255,0.15)}
+.badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:20px;background:var(--info-bg);color:var(--info-tx);font-weight:600;border:1px solid var(--info-br)}
+.ni.active .badge{background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.2)}
+.sf{padding:14px 18px;border-top:1px solid var(--border)}
+.vtag{font-size:11px;color:var(--text3);background:var(--bg3);padding:4px 10px;border-radius:20px;display:inline-block;font-weight:500}
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:var(--sh)}
+.tl{display:flex;align-items:center;gap:12px}
+.ti{width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px}
+.tt{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;letter-spacing:-0.3px}
+.ts{font-size:12px;color:var(--text3);margin-top:1px}
+.ta{display:flex;gap:8px;align-items:center}
+.content{padding:28px;flex:1}
+/* BTN */
+.btn{padding:8px 16px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--bg3)}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text);box-shadow:var(--sh)}
+.btn-p:hover{background:#2a2a28}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+.btn-d{color:var(--err-tx);border-color:var(--err-br)}
+.btn-d:hover{background:var(--err-bg)}
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh)}
+.ph{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pt{font-size:14px;font-weight:600;letter-spacing:-0.2px}
+.ps{font-size:12px;color:var(--text3);margin-top:2px}
+.pb{padding:20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+/* STEPS */
+.steps{display:flex;margin-bottom:24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rxl);padding:5px;box-shadow:var(--sh)}
+.si{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 4px;border-radius:14px;font-size:11px;font-weight:500;color:var(--text3);transition:all .2s}
+.si.active{background:var(--text);color:#fff;box-shadow:var(--sh)}
+.si.done{color:var(--ok-tx)}
+.sn{width:20px;height:20px;border-radius:50%;background:var(--bg3);font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text3);flex-shrink:0}
+.si.active .sn{background:rgba(255,255,255,0.2);color:#fff}
+.si.done .sn{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-br)}
+.sc{display:none}.sc.active{display:block}
+/* UPLOAD — label natif, marche sur tous les navigateurs */
+.ulabel{display:block;cursor:pointer;border:2px dashed var(--border2);border-radius:var(--rl);padding:36px 20px;text-align:center;background:var(--bg3);transition:all .2s;-webkit-user-select:none;user-select:none}
+.ulabel:hover,.ulabel:focus-within{border-color:var(--accent);background:#EFF6FF}
+.ulabel.ok{border-style:solid;border-color:var(--ok-br);background:var(--ok-bg)}
+.ulabel input[type=file]{display:none}
+.ut{font-size:13px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.uh{font-size:11px;color:var(--text3);line-height:1.5}
+.ftags{display:flex;justify-content:center;gap:4px;margin-top:10px;flex-wrap:wrap}
+.ft{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border2);color:var(--text3);font-weight:500;background:var(--bg2)}
+.ft.pdf{border-color:var(--err-br);color:var(--err-tx);background:var(--err-bg)}
+.pimg{max-width:110px;max-height:70px;object-fit:contain;margin:0 auto 8px;display:block;border-radius:6px}
+.pbadge{display:inline-flex;align-items:center;gap:5px;background:var(--ok-bg);color:var(--ok-tx);font-size:11px;padding:4px 10px;border-radius:20px;margin-top:6px;border:1px solid var(--ok-br);font-weight:600}
+/* TABS */
+.tb{display:flex;border-bottom:1px solid var(--border);padding:0 20px;background:var(--bg)}
+.tab{padding:11px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab.active{color:var(--text);border-bottom-color:var(--text)}
+.tab:hover:not(.active){color:var(--text2)}
+.stabs{display:flex;border-bottom:1px solid var(--border);padding:0 20px;background:var(--bg2)}
+.stab{padding:11px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.stab.active{color:var(--text);border-bottom-color:var(--text)}
+.ds{display:none;padding:24px}.ds.active{display:block}
+/* FORMS */
+.field{margin-bottom:16px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:6px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;font-size:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;transition:all .15s}
+.field textarea{min-height:65px;resize:vertical;line-height:1.6}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,107,228,.1)}
+.tg{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.tt2{padding:6px 14px;border-radius:20px;border:1px solid var(--border2);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .15s;background:var(--bg2)}
+.tt2:hover{border-color:var(--text);background:var(--bg3)}
+.tt2.sel{background:var(--text);color:#fff;border-color:var(--text)}
+/* ANALYZE */
+.analyzing{display:flex;flex-direction:column;align-items:center;padding:56px 20px;gap:16px}
+.spinner{width:32px;height:32px;border:3px solid var(--bg3);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbar{height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;width:220px}
+.pfill{height:100%;background:linear-gradient(90deg,var(--text),var(--accent));border-radius:4px;transition:width .4s ease}
+/* RESULT */
+.rl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+/* CARDS */
+.pc{border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;transition:all .15s;background:var(--bg2);box-shadow:var(--sh)}
+.pc:hover{background:var(--bg3);transform:translateY(-1px);box-shadow:var(--shm)}
+.pthumb{width:44px;height:44px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;color:#fff}
+.pi{flex:1;min-width:0}
+.pn{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.pm{font-size:12px;color:var(--text3);margin-top:3px}
+.dr{margin-top:6px;display:flex;gap:4px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.08)}
+/* DETAIL */
+.dh{display:flex;align-items:center;gap:18px;padding:24px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.dthumb{width:56px;height:56px;border-radius:var(--rl);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:var(--shm)}
+/* LIVRABLE */
+.lr{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.lr:last-child{border-bottom:none}
+.liw{width:40px;height:40px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border)}
+/* SOCIAL */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.soc{border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;transition:all .15s;background:var(--bg2);cursor:pointer}
+.soc:hover{background:var(--bg3);transform:translateY(-1px)}
+.sprev{border-radius:8px;height:44px;margin-bottom:10px}
+/* EXPORT */
+.ec{border:1px solid var(--ok-br);border-radius:var(--r);padding:14px;text-align:center;background:var(--ok-bg);cursor:pointer;transition:all .15s}
+.ec:hover{transform:translateY(-2px);box-shadow:var(--shm)}
+/* MISC */
+.es{text-align:center;padding:56px 20px;color:var(--text3)}
+.es .ic{font-size:40px;margin-bottom:14px;opacity:.6}
+.es p{font-size:13px;line-height:1.8}
+.sv{display:none}.sv.active{display:block}
+.notif{position:fixed;bottom:28px;right:28px;background:var(--text);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:1000;opacity:0;transform:translateY(10px);transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;box-shadow:var(--shm)}
+.notif.show{opacity:1;transform:translateY(0)}
+canvas#pdfcv{max-width:110px;max-height:70px;border-radius:6px;display:none;margin:0 auto 8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-mark">
+        <div class="logo-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3L13 13M5.5 9.5H10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div><div class="logo-text">BrandForge</div><div class="logo-sub">Studio</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-label">Principal</div>
+      <div class="ni active" onclick="showSec('nouveau')"><div class="ni-icon">✦</div>Nouveau projet</div>
+      <div class="ni" onclick="showSec('projets')"><div class="ni-icon">📂</div>Mes projets<span class="badge" id="pc">0</span></div>
+      <div class="ni" onclick="showSec('gabarits')"><div class="ni-icon">🗂</div>Gabarits<span class="badge" id="gc">0</span></div>
+      <div class="ni" onclick="showSec('media')"><div class="ni-icon">🖼</div>Médiathèque</div>
+    </div>
+    <div class="sf"><span class="vtag">V1 — Beta</span></div>
+  </div>
+
+  <div class="main">
+
+    <!-- NOUVEAU -->
+    <div class="sv active" id="sec-nouveau">
+      <div class="topbar">
+        <div class="tl"><div class="ti">✦</div><div><div class="tt">Nouveau projet</div><div class="ts">Identité visuelle complète en quelques minutes</div></div></div>
+        <div class="ta">
+          <button class="btn" onclick="resetForm()">Réinitialiser</button>
+          <button class="btn btn-p" id="btn-action" onclick="nextStep()">Continuer →</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="steps">
+          <div class="si active" id="sn1"><div class="sn">1</div>Direction artistique</div>
+          <div class="si" id="sn2"><div class="sn">2</div>Analyse IA</div>
+          <div class="si" id="sn3"><div class="sn">3</div>Infos client</div>
+          <div class="si" id="sn4"><div class="sn">4</div>Génération</div>
+          <div class="si" id="sn5"><div class="sn">5</div>Export</div>
+        </div>
+
+        <div class="sc active" id="step1">
+          <div class="g2">
+            <div class="panel">
+              <div class="ph"><div><div class="pt">Direction artistique</div><div class="ps">Moodboard visuel + brief créatif</div></div></div>
+              <div class="pb">
+                <div class="tb" style="margin:-20px -20px 16px;padding:0 20px;">
+                  <div class="tab active" onclick="swTab(this,'logo')">Logo / Charte</div>
+                  <div class="tab" onclick="swTab(this,'pptx')">PPTX référence</div>
+                  <div class="tab" onclick="swTab(this,'inspo')">Moodboard</div>
+                </div>
+                <div id="tab-logo">
+                  <label class="ulabel" id="ul-logo">
+                    <input type="file" id="up-logo" accept="image/*,.svg,.pdf" onchange="handleUpload(this,'logo')">
+                    <div id="logo-ph">
+                      <div style="font-size:32px;margin-bottom:10px;">⬆</div>
+                      <div class="ut">Logo ou charte graphique</div>
+                      <div class="uh">Cliquez pour sélectionner</div>
+                      <div class="ftags"><span class="ft">PNG</span><span class="ft">JPG</span><span class="ft">SVG</span><span class="ft pdf">PDF</span></div>
+                      <div style="margin-top:14px;"><span class="btn btn-p btn-sm">Choisir un fichier</span></div>
+                    </div>
+                    <div id="logo-prev" style="display:none;">
+                      <canvas id="pdfcv"></canvas>
+                      <img id="logo-img" class="pimg" src="" alt="" style="display:none;">
+                      <div class="ut" id="logo-fname" style="margin-bottom:4px;"></div>
+                      <div id="logo-badge"></div>
+                      <div class="uh" style="margin-top:6px;">Cliquer pour changer</div>
+                    </div>
+                  </label>
+                </div>
+                <div id="tab-pptx" style="display:none;">
+                  <label class="ulabel">
+                    <input type="file" id="up-pptx" accept=".pptx,.ppt" onchange="handleUpload(this,'pptx')">
+                    <div style="font-size:32px;margin-bottom:10px;">📊</div>
+                    <div class="ut">Présentation de référence</div>
+                    <div class="uh">L'IA s'inspire de ce style</div>
+                    <div class="ftags"><span class="ft">.pptx</span><span class="ft">.ppt</span></div>
+                    <div style="margin-top:14px;"><span class="btn btn-p btn-sm">Choisir un fichier</span></div>
+                  </label>
+                </div>
+                <div id="tab-inspo" style="display:none;">
+                  <label class="ulabel">
+                    <input type="file" id="up-inspo" accept="image/*,.pdf" onchange="handleUpload(this,'inspo')">
+                    <div style="font-size:32px;margin-bottom:10px;">🖼</div>
+                    <div class="ut">Image moodboard</div>
+                    <div class="uh">Pinterest, Behance, toute inspiration</div>
+                    <div class="ftags"><span class="ft">PNG</span><span class="ft">JPG</span><span class="ft pdf">PDF</span></div>
+                    <div style="margin-top:14px;"><span class="btn btn-p btn-sm">Choisir un fichier</span></div>
+                  </label>
+                </div>
+                <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <div style="font-size:12px;font-weight:600;">Brief créatif</div>
+                    <span style="font-size:10px;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:10px;">Optionnel</span>
+                  </div>
+                  <textarea id="user-prompt" style="width:100%;padding:10px 12px;font-size:12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;min-height:70px;resize:vertical;line-height:1.6;" placeholder="Ex: charte pharmaceutique, couleurs vertes, polices Comfortaa et Myriad Pro..."></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="ph"><div><div class="pt">Gabarits enregistrés</div><div class="ps">Réutiliser un modèle existant</div></div></div>
+              <div class="pb" id="gab-sb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc" id="step2">
+          <div class="panel">
+            <div class="ph"><div><div class="pt">Analyse IA</div><div class="ps">Extraction automatique des éléments visuels</div></div></div>
+            <div id="analyse-body">
+              <div class="analyzing">
+                <div class="spinner"></div>
+                <div style="font-size:14px;color:var(--text2);" id="amsg">Analyse en cours...</div>
+                <div style="font-size:12px;color:var(--text3);">Couleurs · Typographies · Univers</div>
+                <div class="pbar"><div class="pfill" id="prog" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc" id="step3">
+          <div class="g2">
+            <div class="panel">
+              <div class="ph"><div class="pt">Informations client</div></div>
+              <div class="pb">
+                <div class="field"><label>Nom du client / marque</label><input type="text" id="f-nom" placeholder="Ex : LafiPharma"></div>
+                <div class="field"><label>Secteur d'activité</label>
+                  <select id="f-secteur"><option value="">Sélectionner...</option><option>Mode & Beauté</option><option>Restauration & Food</option><option>Tech & Digital</option><option>Santé & Bien-être</option><option>Pharmaceutique</option><option>Immobilier & Construction</option><option>Finance & Conseil</option><option>Éducation & Formation</option><option>Artisanat & Créatif</option><option>Sport & Fitness</option><option>Autre</option></select>
+                </div>
+                <div class="field"><label>Slogan (optionnel)</label><input type="text" id="f-slogan" placeholder="Ex : L'excellence pharmaceutique"></div>
+                <div class="field"><label>Langue</label><select id="f-langue"><option>Français</option><option>Anglais</option><option>Bilingue</option></select></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="ph"><div class="pt">Direction créative</div></div>
+              <div class="pb">
+                <div class="field"><label>Ton de la marque</label>
+                  <div class="tg"><div class="tt2" onclick="togTone(this)">Minimaliste</div><div class="tt2" onclick="togTone(this)">Luxe</div><div class="tt2" onclick="togTone(this)">Dynamique</div><div class="tt2" onclick="togTone(this)">Sérieux</div><div class="tt2" onclick="togTone(this)">Créatif</div><div class="tt2" onclick="togTone(this)">Moderne</div><div class="tt2" onclick="togTone(this)">Chaleureux</div><div class="tt2" onclick="togTone(this)">Tech</div><div class="tt2" onclick="togTone(this)">Nature</div><div class="tt2" onclick="togTone(this)">Bold</div></div>
+                </div>
+                <div class="field" style="margin-top:12px;"><label>Couleurs à éviter</label><input type="text" id="f-eviter" placeholder="Ex : rouge, orange"></div>
+                <div class="field"><label>Instructions spécifiques</label><textarea id="f-notes" placeholder="Toute indication..."></textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sc" id="step4">
+          <div class="panel">
+            <div class="ph"><div><div class="pt">Génération en cours</div><div class="ps">Création de tous les livrables</div></div></div>
+            <div class="pb"><div id="gen-items"></div></div>
+          </div>
+        </div>
+
+        <div class="sc" id="step5">
+          <div class="panel">
+            <div class="ph">
+              <div><div class="pt">Pack prêt !</div><div class="ps">Tous les livrables sont disponibles</div></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" onclick="showSec('projets')">Voir mes projets →</button>
+                <button class="btn btn-p" onclick="notify('Préparation ZIP...')">⬇ Télécharger ZIP</button>
+              </div>
+            </div>
+            <div class="pb">
+              <div class="g3" id="exp-grid" style="margin-bottom:20px;"></div>
+              <div class="rl">Mini charte générée</div>
+              <div id="charte-preview"></div>
+              <div style="margin-top:16px;text-align:center;"><button class="btn" onclick="resetForm()">+ Nouveau projet</button></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PROJETS -->
+    <div class="sv" id="sec-projets">
+      <div class="topbar">
+        <div class="tl"><div class="ti">📂</div><div><div class="tt">Mes projets</div><div class="ts" id="psub">0 projet</div></div></div>
+        <button class="btn btn-p" onclick="showSec('nouveau')">+ Nouveau projet</button>
+      </div>
+      <div class="content" id="proj-content"></div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="sv" id="sec-detail">
+      <div class="topbar">
+        <div class="tl"><div class="ti">📋</div><div><div class="tt" id="dtitle">Projet</div><div class="ts" id="dsub"></div></div></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" onclick="showSec('projets')">← Retour</button>
+          <button class="btn btn-p" onclick="notify('Préparation ZIP...')">⬇ ZIP</button>
+        </div>
+      </div>
+      <div id="detail-body"></div>
+    </div>
+
+    <!-- GABARITS -->
+    <div class="sv" id="sec-gabarits">
+      <div class="topbar">
+        <div class="tl"><div class="ti">🗂</div><div><div class="tt">Gabarits</div><div class="ts">Modèles réutilisables</div></div></div>
+        <button class="btn btn-p" onclick="showSec('nouveau')">+ Nouveau</button>
+      </div>
+      <div class="content" id="gab-content"></div>
+    </div>
+
+    <!-- MEDIA -->
+    <div class="sv" id="sec-media">
+      <div class="topbar">
+        <div class="tl"><div class="ti">🖼</div><div><div class="tt">Médiathèque</div><div class="ts">Images et assets</div></div></div>
+        <button class="btn btn-p">+ Ajouter</button>
+      </div>
+      <div class="content"><div class="es"><div class="ic">🖼</div><p>Médiathèque disponible en V2.</p></div></div>
+    </div>
+
+  </div>
+</div>
+<div class="notif" id="notif"></div>
+
+<!-- MODAL CLÉ API -->
+<div id="api-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border-radius:var(--rl);padding:32px;width:440px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="width:36px;height:36px;background:#111;border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 13L8 3L13 13M5.5 9.5H10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div style="font-size:16px;font-weight:600;">BrandForge Studio</div>
+    </div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:20px;">Entrez votre clé API Anthropic pour activer l'analyse IA.</div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px;">Clé API Anthropic</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." style="width:100%;padding:10px 12px;font-size:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;font-family:monospace;" onkeydown="if(event.key==='Enter')document.getElementById('api-save-btn').click()">
+      <div id="api-error" style="display:none;font-size:12px;color:var(--err-tx);margin-top:6px;">Clé invalide — doit commencer par sk-ant-...</div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);background:var(--bg3);padding:10px 12px;border-radius:var(--r);margin-bottom:20px;line-height:1.6;">
+      Ta clé est stockée uniquement dans ton navigateur et n'est jamais partagée. Elle ne sera demandée qu'une seule fois.
+      <br>Récupère ta clé sur <strong>console.anthropic.com</strong> → API Keys.
+    </div>
+    <button id="api-save-btn" class="btn btn-p" style="width:100%;justify-content:center;padding:10px;">Activer BrandForge →</button>
+  </div>
+</div>
+
+<script>
+if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const _c = atob('c2stYW50LWFwaTAzLU1oU2R5SF9sWktfYVVCNWJwRUpxQW5aa1lOR0h6aENrZmJXTnIxYWw4YzluaVA4VGU4V0YxYUFaSExUWm9jdzJpa2NiaHpkeFI0NjN1QjNVYnlDcXRRLWQ3alluQUFB');
+
+async function callClaude(body){
+  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': _c,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify(body)
+  });
+  if(!resp.ok) throw new Error('API '+resp.status);
+  return resp.json();
+}
+
+let currentStep=1,file=null,ftype=null,aiResult=null,pdfPages=[];
+let projects=[],gabarits=[];
+
+// STORAGE
+async function sGet(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function sSet(k,v){try{await window.storage.set(k,JSON.stringify(v));}catch(e){}}
+
+async function init(){
+  const p=await sGet('bf_p');if(p)projects=p;
+  const g=await sGet('bf_g');if(g)gabarits=g;
+  upBadges();renderProjs();renderGabs();renderGabSb();
+}
+
+function upBadges(){
+  document.getElementById('pc').textContent=projects.length;
+  document.getElementById('gc').textContent=gabarits.length;
+  const s=document.getElementById('psub');
+  if(s)s.textContent=projects.length+' projet'+(projects.length>1?'s':'');
+}
+
+// NAV
+function showSec(n){
+  document.querySelectorAll('.sv').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(ni=>ni.classList.remove('active'));
+  document.getElementById('sec-'+n).classList.add('active');
+  const m={nouveau:0,projets:1,detail:1,gabarits:2,media:3};
+  if(m[n]!==undefined)document.querySelectorAll('.ni')[m[n]].classList.add('active');
+  if(n==='projets')renderProjs();
+  if(n==='gabarits')renderGabs();
+}
+
+function swTab(el,t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');
+  ['logo','pptx','inspo'].forEach(x=>{const e=document.getElementById('tab-'+x);if(e)e.style.display=x===t?'block':'none';});
+}
+
+function swDet(el,n){
+  document.querySelectorAll('.stab').forEach(x=>x.classList.remove('active'));el.classList.add('active');
+  document.querySelectorAll('.ds').forEach(s=>s.classList.remove('active'));
+  document.getElementById('ds-'+n).classList.add('active');
+}
+
+// UPLOAD
+async function handleUpload(input,type){
+  const f=input.files[0];if(!f)return;
+  file=f;ftype=type;aiResult=null;pdfPages=[];
+  const isPDF=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+
+  if(isPDF){
+    notify('PDF détecté — extraction en cours...');
+    try{
+      const buf=await f.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      const total=pdf.numPages;
+      // Pages stratégiques : 60% et 80% du document (palette et typos)
+      const idx=[...new Set([Math.ceil(total*.6),Math.ceil(total*.8)].filter(p=>p>=1&&p<=total))];
+      for(const pn of idx){
+        const pg=await pdf.getPage(pn);
+        const vp=pg.getViewport({scale:1.2});
+        const cv=document.createElement('canvas');
+        cv.width=vp.width;cv.height=vp.height;
+        await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+        pdfPages.push(cv.toDataURL('image/jpeg',.7).split(',')[1]);
+      }
+      // Aperçu page 1
+      const p1=await pdf.getPage(1);
+      const vp1=p1.getViewport({scale:.8});
+      const cv1=document.getElementById('pdfcv');
+      cv1.width=vp1.width;cv1.height=vp1.height;
+      await p1.render({canvasContext:cv1.getContext('2d'),viewport:vp1}).promise;
+      cv1.style.display='block';
+      document.getElementById('logo-img').style.display='none';
+      document.getElementById('logo-fname').textContent=f.name;
+      document.getElementById('logo-badge').innerHTML=`<div class="pbadge">✓ PDF · ${total} pages · ${idx.length} analysées</div>`;
+      document.getElementById('logo-ph').style.display='none';
+      document.getElementById('logo-prev').style.display='block';
+      document.getElementById('ul-logo').classList.add('ok');
+      notify('✓ PDF chargé — '+total+' pages');
+    }catch(e){console.error(e);notify('Erreur PDF : '+e.message);}
+  }else if(f.type.startsWith('image/')){
+    const r=new FileReader();
+    r.onload=ev=>{
+      pdfPages=[ev.target.result.split(',')[1]];
+      document.getElementById('logo-img').src=ev.target.result;
+      document.getElementById('logo-img').style.display='block';
+      document.getElementById('pdfcv').style.display='none';
+      document.getElementById('logo-fname').textContent=f.name;
+      document.getElementById('logo-badge').innerHTML='';
+      document.getElementById('logo-ph').style.display='none';
+      document.getElementById('logo-prev').style.display='block';
+      document.getElementById('ul-logo').classList.add('ok');
+      notify('✓ Image chargée');
+    };
+    r.readAsDataURL(f);
+  }else{
+    pdfPages=[];
+    document.getElementById('logo-fname').textContent=f.name;
+    document.getElementById('logo-ph').style.display='none';
+    document.getElementById('logo-prev').style.display='block';
+    document.getElementById('ul-logo').classList.add('ok');
+    notify('Fichier chargé : '+f.name);
+  }
+}
+
+function togTone(el){el.classList.toggle('sel');}
+function getTones(){return[...document.querySelectorAll('.tt2.sel')].map(t=>t.textContent);}
+
+// STEPS
+async function nextStep(){
+  if(currentStep===1){
+    if(!file){notify('Veuillez sélectionner un fichier');return;}
+    goStep(2);document.getElementById('btn-action').disabled=true;
+    await runAnalysis();
+    document.getElementById('btn-action').disabled=false;
+    document.getElementById('btn-action').textContent='Continuer →';
+  }else if(currentStep===2){
+    goStep(3);document.getElementById('btn-action').textContent='Générer →';
+  }else if(currentStep===3){
+    const nom=document.getElementById('f-nom').value.trim();
+    if(!nom){notify('Veuillez entrer le nom du client');return;}
+    goStep(4);
+    document.getElementById('btn-action').disabled=true;
+    document.getElementById('btn-action').textContent='Génération...';
+    await runGen();
+    document.getElementById('btn-action').disabled=false;
+    document.getElementById('btn-action').textContent='Nouveau projet';
+    document.getElementById('btn-action').onclick=resetForm;
+  }
+}
+
+function goStep(n){
+  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  document.querySelectorAll('.si').forEach((s,i)=>{s.classList.remove('active','done');if(i+1<n)s.classList.add('done');});
+  document.getElementById('sn'+n).classList.add('active');
+  currentStep=n;
+}
+
+// ANALYSE
+async function runAnalysis(){
+  const prog=document.getElementById('prog');
+  const msgEl=document.getElementById('amsg');
+  let p=0;const iv=setInterval(()=>{p=Math.min(p+Math.random()*8,85);prog.style.width=p+'%';},400);
+  if(msgEl)msgEl.textContent=pdfPages.length>1?`Analyse de ${pdfPages.length} pages...`:'Analyse en cours...';
+  const ctx=document.getElementById('user-prompt')?.value?.trim()||'';
+  const prompt=`Tu es expert en identité visuelle et branding.
+Analyse ${pdfPages.length>1?'ces pages de document (charte graphique)':'cette image'} et extrais les éléments visuels EXACTS.
+${ctx?`CONTEXTE: "${ctx}"\n`:''}
+RÈGLES:
+- Couleurs HEX EXACTES visibles dans le document — pas inventées
+- Pour une charte PDF: lis les codes HEX affichés
+- Polices nommées dans le document
+- Analyse secteur et ambiance réels
+
+Réponds UNIQUEMENT avec ce JSON valide, sans markdown, sans texte avant/après:
+{"couleurs":[{"hex":"#XXXXXX","nom":"nom","usage":"principale","description":"rôle"},{"hex":"#XXXXXX","nom":"nom","usage":"secondaire","description":"rôle"},{"hex":"#XXXXXX","nom":"nom","usage":"accent","description":"rôle"}],"typographies":{"principale":{"nom":"Nom Police","style":"description","usage":"titres","visible_dans_doc":true},"secondaire":{"nom":"Nom Police","style":"description","usage":"corps","visible_dans_doc":false}},"univers":{"style":"style visuel","ton":"adj1, adj2, adj3","secteur_probable":"secteur","mots_cles":["mot1","mot2","mot3"],"ambiance":"ambiance"}}`;
+
+  try{
+    const content=[];
+    pdfPages.forEach((d,i)=>{
+      content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}});
+      if(pdfPages.length>1)content.push({type:'text',text:`Page ${i+1}:`});
+    });
+    content.push({type:'text',text:prompt});
+    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content}]})});
+    if(!res.ok)throw new Error('API '+res.status);
+    const d=await res.json();
+    if(d.error)throw new Error(d.error.message);
+    const raw=d.content[0].text.replace(/```json|```/g,'').trim();
+    const m=raw.match(/\{[\s\S]*\}/);
+    aiResult=JSON.parse(m?m[0]:raw);
+  }catch(e){
+    console.error('Analyse error:',e);
+    notify('⚠️ Erreur: '+e.message);
+    aiResult={couleurs:[{hex:'#1B2A4A',nom:'Bleu nuit',usage:'principale',description:'Couleur dominante'},{hex:'#F2EDE4',nom:'Beige',usage:'secondaire',description:'Fond'},{hex:'#C9973A',nom:'Or',usage:'accent',description:'Accent'}],typographies:{principale:{nom:'Playfair Display',style:'Serif élégant',usage:'Titres',visible_dans_doc:false},secondaire:{nom:'Source Sans Pro',style:'Sans-serif',usage:'Corps',visible_dans_doc:false}},univers:{style:'Professionnel',ton:'Sérieux, Fiable, Moderne',secteur_probable:'Conseil',mots_cles:['confiance','expertise','qualité'],ambiance:'Marque professionnelle'}};
+  }
+  clearInterval(iv);prog.style.width='100%';
+  setTimeout(renderAnalysis,400);
+}
+
+function renderAnalysis(){
+  const r=aiResult;
+  let h='<div style="padding:20px;">';
+  h+='<div style="margin-bottom:20px;"><div class="rl">Palette extraite</div><div style="display:flex;gap:12px;flex-wrap:wrap;">';
+  r.couleurs.forEach(c=>{h+=`<div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 14px;flex:1;min-width:140px;border:1px solid var(--border);"><div style="width:42px;height:42px;border-radius:8px;background:${c.hex};border:1px solid rgba(0,0,0,.1);flex-shrink:0;box-shadow:var(--sh);"></div><div><div style="font-size:13px;font-weight:600;">${c.nom}</div><div style="font-size:11px;font-family:monospace;color:var(--text3);margin-top:1px;">${c.hex}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${c.description||c.usage}</div></div></div>`;});
+  h+='</div></div>';
+  const tp=r.typographies.principale,ts=r.typographies.secondaire;
+  h+='<div style="margin-bottom:20px;"><div class="rl">Typographies</div><div style="display:flex;gap:12px;">';
+  h+=`<div style="flex:1;background:var(--bg3);border-radius:var(--r);padding:14px;border:1px solid var(--border);border-left:3px solid var(--text);"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Titres ${tp.visible_dans_doc?'<span style="color:#16a34a;font-size:9px;">● Détectée</span>':'<span style="color:#d97706;font-size:9px;">● Suggérée</span>'}</div><div style="font-size:18px;font-weight:700;">${tp.nom}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${tp.style}</div></div>`;
+  h+=`<div style="flex:1;background:var(--bg3);border-radius:var(--r);padding:14px;border:1px solid var(--border);border-left:3px solid #888;"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Corps ${ts.visible_dans_doc?'<span style="color:#16a34a;font-size:9px;">● Détectée</span>':'<span style="color:#d97706;font-size:9px;">● Suggérée</span>'}</div><div style="font-size:15px;font-weight:600;">${ts.nom}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${ts.style}</div></div>`;
+  h+='</div></div>';
+  h+=`<div style="margin-bottom:20px;"><div class="rl">Univers de marque</div><div style="background:var(--bg3);border-radius:var(--r);padding:16px;border:1px solid var(--border);"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;"><div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Style</div><div style="font-size:13px;font-weight:500;">${r.univers.style}</div></div><div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Secteur</div><div style="font-size:13px;font-weight:500;">${r.univers.secteur_probable}</div></div><div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Ton</div><div style="font-size:13px;font-weight:500;">${r.univers.ton}</div></div><div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Ambiance</div><div style="font-size:13px;font-weight:500;">${r.univers.ambiance}</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap;">${(r.univers.mots_cles||[]).map(m=>`<span style="background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2);">${m}</span>`).join('')}</div></div></div>`;
+  h+='<div style="display:flex;align-items:center;gap:12px;"><button class="btn btn-p" onclick="nextStep()">Continuer → Infos client</button><span style="font-size:12px;color:var(--text3);">Tu peux modifier ces infos à l\'étape suivante</span></div>';
+  h+='</div>';
+  document.getElementById('analyse-body').innerHTML=h;
+}
+
+// GÉNÉRATION
+async function runGen(){
+  const nom=document.getElementById('f-nom').value.trim();
+  const secteur=document.getElementById('f-secteur').value;
+  const slogan=document.getElementById('f-slogan').value.trim();
+  const tones=getTones();
+  const langue=document.getElementById('f-langue').value;
+  const livs=[{id:'charte',icon:'🎨',nom:'Mini charte graphique',fmt:'PDF + JSON'},{id:'pptx',icon:'📊',nom:'Présentation PPTX',fmt:'PPTX'},{id:'flyer',icon:'🗒',nom:'Flyers A4 + A5',fmt:'PDF + SVG'},{id:'sig',icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},{id:'word',icon:'📄',nom:'En-tête Word',fmt:'DOCX + PDF'},{id:'social',icon:'📱',nom:'Kit réseaux sociaux',fmt:'PNG × 12 formats'}];
+  document.getElementById('gen-items').innerHTML=livs.map(l=>`<div class="lr"><div class="liw">${l.icon}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${l.nom}</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${l.fmt}</div></div><div id="st-${l.id}" style="font-size:12px;color:var(--text3);">En attente...</div></div>`).join('');
+  for(let l of livs){
+    document.getElementById('st-'+l.id).textContent='⏳ Génération...';
+    document.getElementById('st-'+l.id).style.color='var(--info-tx)';
+    await new Promise(r=>setTimeout(r,600+Math.random()*400));
+    document.getElementById('st-'+l.id).textContent='✓ Prêt';
+    document.getElementById('st-'+l.id).style.color='var(--ok-tx)';
+  }
+  const proj={id:Date.now(),nom,secteur:secteur||'Non précisé',slogan,langue,tones,date:new Date().toLocaleDateString('fr-FR'),couleurs:aiResult?aiResult.couleurs:[],typographies:aiResult?aiResult.typographies:{},univers:aiResult?aiResult.univers:{},livrables:livs.map(l=>({...l,status:'ready'}))};
+  projects.unshift(proj);
+  await sSet('bf_p',projects);
+  if(ftype==='pptx'||ftype==='logo'){
+    gabarits.unshift({id:Date.now(),nom:nom+' — gabarit',type:ftype,date:new Date().toLocaleDateString('fr-FR'),couleurs:proj.couleurs});
+    await sSet('bf_g',gabarits);
+  }
+  upBadges();renderGabSb();
+  await new Promise(r=>setTimeout(r,300));
+  goStep(5);renderExport(nom);
+  notify('🎉 Pack généré et sauvegardé !');
+}
+
+// CHARTE & EXPORT
+function buildCharte(nom,r){
+  if(!r)return'';
+  const c0=r.couleurs[0]?.hex||'#1a1a1a';
+  const c1=r.couleurs[1]?.hex||'#f5f5f5';
+  return`<div style="background:${c1};border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+    <div style="background:${c0};padding:24px 28px;">
+      <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-.5px;">${nom}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Identité visuelle · ${new Date().getFullYear()}</div>
+    </div>
+    <div style="padding:24px 28px;">
+      <div style="margin-bottom:18px;"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Palette</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">${(r.couleurs||[]).map(c=>`<div style="flex:1;min-width:90px;"><div style="height:44px;border-radius:8px;background:${c.hex};border:1px solid rgba(0,0,0,.08);margin-bottom:6px;"></div><div style="font-size:11px;font-weight:600;">${c.nom}</div><div style="font-size:10px;font-family:monospace;color:var(--text3);">${c.hex}</div></div>`).join('')}</div>
+      </div>
+      <div style="height:1px;background:var(--border);margin-bottom:18px;"></div>
+      <div style="margin-bottom:18px;"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Typographies</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:var(--bg2);border-radius:8px;padding:12px;border:1px solid var(--border);"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">TITRES</div><div style="font-size:18px;font-weight:700;color:${c0};">${r.typographies?.principale?.nom||'—'}</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${r.typographies?.principale?.style||''}</div></div>
+          <div style="background:var(--bg2);border-radius:8px;padding:12px;border:1px solid var(--border);"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">CORPS</div><div style="font-size:14px;font-weight:600;">${r.typographies?.secondaire?.nom||'—'}</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${r.typographies?.secondaire?.style||''}</div></div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);margin-bottom:18px;"></div>
+      <div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Univers</div>
+        <div style="background:var(--bg2);border-radius:8px;padding:12px;border:1px solid var(--border);font-size:13px;line-height:1.8;"><strong>Style :</strong> ${r.univers?.style||'—'}<br><strong>Ton :</strong> ${r.univers?.ton||'—'}<br><strong>Secteur :</strong> ${r.univers?.secteur_probable||'—'}</div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">${(r.univers?.mots_cles||[]).map(m=>`<span style="background:${c0};color:#fff;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;">${m}</span>`).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderExport(nom){
+  const items=[{icon:'🎨',nom:'Mini charte',fmt:'PDF + JSON'},{icon:'📊',nom:'Présentation',fmt:'PPTX'},{icon:'🗒',nom:'Flyers',fmt:'PDF + SVG'},{icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},{icon:'📄',nom:'En-tête Word',fmt:'DOCX'},{icon:'📱',nom:'Kit social',fmt:'12 formats PNG'}];
+  document.getElementById('exp-grid').innerHTML=items.map(it=>`<div class="ec"><div style="font-size:22px;margin-bottom:7px;">${it.icon}</div><div style="font-size:12px;font-weight:600;color:var(--ok-tx);">${it.nom}</div><div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:monospace;">${it.fmt}</div></div>`).join('');
+  document.getElementById('charte-preview').innerHTML=buildCharte(nom,aiResult);
+}
+
+// PROJETS
+function renderProjs(){
+  const c=document.getElementById('proj-content');upBadges();
+  if(!projects.length){c.innerHTML='<div class="es"><div class="ic">📂</div><p>Aucun projet.<br>Créez votre premier projet.</p></div>';return;}
+  c.innerHTML=projects.map((p,i)=>{
+    const c0=p.couleurs&&p.couleurs[0]?p.couleurs[0].hex||p.couleurs[0]:'#1a1a1a';
+    const dots=(p.couleurs||[]).map(c=>`<span class="dot" style="background:${c.hex||c}"></span>`).join('');
+    return`<div class="pc" onclick="openProj(${i})"><div class="pthumb" style="background:${c0};">${p.nom.charAt(0).toUpperCase()}</div><div class="pi"><div class="pn">${p.nom}</div><div class="pm">${p.secteur} · ${p.date}</div><div class="dr">${dots}</div></div><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:12px;color:var(--text3);">Voir →</span><button class="btn btn-sm btn-d" onclick="delProj(${i},event)">Supprimer</button></div></div>`;
+  }).join('');
+}
+
+function openProj(i){
+  const p=projects[i];
+  document.getElementById('dtitle').textContent=p.nom;
+  document.getElementById('dsub').textContent=p.secteur+' · '+p.date;
+  const c0=p.couleurs&&p.couleurs[0]?p.couleurs[0].hex||p.couleurs[0]:'#1a1a1a';
+  const cols=p.couleurs||[],typo=p.typographies||{},univ=p.univers||{};
+  const livs=p.livrables||[{icon:'🎨',nom:'Mini charte',fmt:'PDF + JSON'},{icon:'📊',nom:'Présentation PPTX',fmt:'PPTX'},{icon:'🗒',nom:'Flyers',fmt:'PDF + SVG'},{icon:'📧',nom:'Signature mail',fmt:'HTML + PNG'},{icon:'📄',nom:'En-tête Word',fmt:'DOCX + PDF'},{icon:'📱',nom:'Kit réseaux sociaux',fmt:'PNG × 12'}];
+  const socs=[{icon:'📸',nom:'Instagram Post',dims:'1080×1080'},{icon:'📸',nom:'Instagram Story',dims:'1080×1920'},{icon:'📘',nom:'Facebook Post',dims:'1200×630'},{icon:'📘',nom:'Facebook Cover',dims:'820×312'},{icon:'💼',nom:'LinkedIn Post',dims:'1200×627'},{icon:'💼',nom:'LinkedIn Bannière',dims:'1584×396'},{icon:'🐦',nom:'Twitter/X',dims:'1600×900'},{icon:'▶️',nom:'YouTube Thumb',dims:'1280×720'},{icon:'▶️',nom:'YouTube Bannière',dims:'2560×1440'},{icon:'📌',nom:'Pinterest',dims:'1000×1500'}];
+  document.getElementById('detail-body').innerHTML=`
+    <div class="dh"><div class="dthumb" style="background:${c0};">${p.nom.charAt(0).toUpperCase()}</div>
+      <div><div style="font-size:18px;font-weight:700;">${p.nom}</div><div style="font-size:12px;color:var(--text3);margin-top:3px;">${p.secteur} · ${p.date}${p.slogan?' · "'+p.slogan+'"':''}</div><div class="dr" style="margin-top:6px;">${cols.map(c=>`<span class="dot" style="background:${c.hex||c}"></span>`).join('')}</div></div>
+    </div>
+    <div class="stabs">
+      <div class="stab active" onclick="swDet(this,'charte')">Charte</div>
+      <div class="stab" onclick="swDet(this,'livs')">Livrables</div>
+      <div class="stab" onclick="swDet(this,'social')">Réseaux sociaux</div>
+      <div class="stab" onclick="swDet(this,'edit')">Modifier</div>
+    </div>
+    <div class="ds active" id="ds-charte">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div class="rl" style="margin-bottom:0;">Mini charte</div><div style="display:flex;gap:8px;"><button class="btn btn-sm" onclick="notify('Export PDF...')">⬇ PDF</button><button class="btn btn-sm btn-p" onclick="notify('Export JSON...')">⬇ JSON</button></div></div>
+      ${buildCharte(p.nom,{couleurs:cols,typographies:typo,univers:univ})}
+    </div>
+    <div class="ds" id="ds-livs">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div class="rl" style="margin-bottom:0;">Livrables</div><button class="btn btn-sm btn-p" onclick="notify('Téléchargement ZIP...')">⬇ Tout</button></div>
+      ${livs.map(l=>`<div class="lr"><div class="liw">${l.icon||'📄'}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${l.nom}</div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${l.fmt}</div></div><div style="display:flex;gap:6px;"><button class="btn btn-sm" onclick="notify('Aperçu...')">Aperçu</button><button class="btn btn-sm btn-p" onclick="notify('Téléchargement...')">⬇</button></div></div>`).join('')}
+    </div>
+    <div class="ds" id="ds-social">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div class="rl" style="margin-bottom:0;">Kit réseaux sociaux</div><button class="btn btn-sm btn-p" onclick="notify('Téléchargement kit...')">⬇ Kit</button></div>
+      <div class="sg">${socs.map(s=>`<div class="soc"><div class="sprev" style="background:${c0};display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;opacity:.5;">${s.icon}</span></div><div style="font-size:12px;font-weight:600;">${s.nom}</div><div style="font-size:10px;color:var(--text3);margin-top:2px;font-family:monospace;">${s.dims}</div><button class="btn btn-sm" style="width:100%;margin-top:8px;" onclick="notify('Téléchargement...')">⬇</button></div>`).join('')}</div>
+    </div>
+    <div class="ds" id="ds-edit">
+      <div class="rl" style="margin-bottom:16px;">Modifier</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;"><label style="font-size:12px;color:var(--text2);width:80px;font-weight:600;">Nom</label><input type="text" id="en" value="${p.nom}" style="flex:1;padding:8px 12px;font-size:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;"><label style="font-size:12px;color:var(--text2);width:80px;font-weight:600;">Slogan</label><input type="text" id="es" value="${p.slogan||''}" placeholder="—" style="flex:1;padding:8px 12px;font-size:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;"></div>
+      <div style="margin-bottom:16px;"><div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600;">Couleurs</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">${cols.map((c,ci)=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);padding:8px 12px;border-radius:var(--r);border:1px solid var(--border);"><div style="width:30px;height:30px;border-radius:7px;background:${c.hex||c};position:relative;overflow:hidden;cursor:pointer;border:1px solid var(--border);"><input type="color" value="${c.hex||c}" oninput="updColor(this,${i},${ci})" style="position:absolute;inset:-5px;width:calc(100% + 10px);height:calc(100% + 10px);opacity:0;cursor:pointer;"></div><div style="font-size:12px;font-family:monospace;font-weight:600;" id="hx-${i}-${ci}">${c.hex||c}</div></div>`).join('')}
+        </div>
+      </div>
+      <button class="btn btn-p" onclick="saveEdit(${i})">Enregistrer</button>
+    </div>`;
+  showSec('detail');
+}
+
+async function delProj(i,e){e.stopPropagation();projects.splice(i,1);await sSet('bf_p',projects);upBadges();renderProjs();notify('Projet supprimé');}
+
+function updColor(input,pi,ci){
+  const hex=input.value;input.parentElement.style.background=hex;
+  const el=document.getElementById(`hx-${pi}-${ci}`);if(el)el.textContent=hex;
+  if(projects[pi]?.couleurs[ci])projects[pi].couleurs[ci].hex=hex;
+}
+
+async function saveEdit(i){
+  projects[i].nom=document.getElementById('en').value;
+  projects[i].slogan=document.getElementById('es').value;
+  await sSet('bf_p',projects);
+  document.getElementById('dtitle').textContent=projects[i].nom;
+  notify('✓ Sauvegardé');
+}
+
+// GABARITS
+function renderGabs(){
+  const c=document.getElementById('gab-content');
+  if(!gabarits.length){c.innerHTML='<div class="es"><div class="ic">🗂</div><p>Vos gabarits apparaîtront ici.</p></div>';return;}
+  c.innerHTML=gabarits.map((g,i)=>{
+    const c0=g.couleurs&&g.couleurs[0]?g.couleurs[0].hex||g.couleurs[0]:'#1a1a1a';
+    return`<div class="pc"><div class="pthumb" style="background:${c0};">G</div><div class="pi"><div class="pn">${g.nom}</div><div class="pm">${g.type==='pptx'?'PPTX':'Logo'} · ${g.date}</div></div><button class="btn btn-sm btn-d" onclick="delGab(${i},event)">Supprimer</button></div>`;
+  }).join('');
+}
+
+function renderGabSb(){
+  const c=document.getElementById('gab-sb');
+  if(!gabarits.length){c.innerHTML='<div class="es" style="padding:16px 0;"><div class="ic" style="font-size:24px;margin-bottom:8px;">📁</div><p style="font-size:12px;">Aucun gabarit.</p></div>';return;}
+  c.innerHTML=gabarits.slice(0,3).map(g=>{
+    const c0=g.couleurs&&g.couleurs[0]?g.couleurs[0].hex||g.couleurs[0]:'#1a1a1a';
+    return`<div style="border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div style="width:28px;height:28px;border-radius:6px;background:${c0};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">G</div><div><div style="font-size:12px;font-weight:600;">${g.nom}</div><div style="font-size:11px;color:var(--text3);">${g.date}</div></div></div>`;
+  }).join('');
+}
+
+async function delGab(i,e){e.stopPropagation();gabarits.splice(i,1);await sSet('bf_g',gabarits);upBadges();renderGabs();renderGabSb();notify('Gabarit supprimé');}
+
+// RESET
+function resetForm(){
+  file=null;ftype=null;aiResult=null;pdfPages=[];
+  ['f-nom','f-slogan','f-eviter','f-notes','user-prompt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const fs=document.getElementById('f-secteur');if(fs)fs.value='';
+  document.querySelectorAll('.tt2').forEach(t=>t.classList.remove('sel'));
+  document.getElementById('logo-ph').style.display='block';
+  document.getElementById('logo-prev').style.display='none';
+  document.getElementById('ul-logo').classList.remove('ok');
+  document.getElementById('pdfcv').style.display='none';
+  document.getElementById('logo-img').style.display='none';
+  document.getElementById('btn-action').textContent='Continuer →';
+  document.getElementById('btn-action').onclick=nextStep;
+  document.getElementById('btn-action').disabled=false;
+  document.getElementById('analyse-body').innerHTML=`<div class="analyzing"><div class="spinner"></div><div style="font-size:14px;color:var(--text2);" id="amsg">Analyse en cours...</div><div style="font-size:12px;color:var(--text3);">Couleurs · Typographies · Univers</div><div class="pbar"><div class="pfill" id="prog" style="width:0%"></div></div></div>`;
+  goStep(1);showSec('nouveau');
+}
+
+function notify(msg){
+  const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');
+  clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2800);
+}
+
+init();
+</script>
+</body>
+</html>
